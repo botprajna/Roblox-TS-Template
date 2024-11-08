@@ -14,10 +14,16 @@
             "command": "rojo serve"
         },
         {
+            "label": "watch",
+            "type": "shell",
+            "command": "rbxtsc -w"
+        },
+        {
             "label": "start",
             "dependsOn": [
                 "build",
-                "serve"
+                "serve",
+                "watch"
             ],
             "runOptions": {
                 "runOn": "folderOpen"

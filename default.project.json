@@ -32,6 +32,10 @@
 				"client": {
 					"$path": "out/client"
 				}
+			},
+			"Assets": {
+				"$path": "Assets",
+				"$ignoreUnknownInstances": true
 			}
 		},
 		"Workspace": {

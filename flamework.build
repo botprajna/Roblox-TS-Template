@@ -1,0 +1,25 @@
+{
+	"version": 1,
+	"flameworkVersion": "1.2.3",
+	"identifiers": {
+		"roblox-ts-template:out/client/controllers/hello@Hello": "client/controllers/hello@Hello",
+		"roblox-ts-template:out/client/controllers/key@Key": "client/controllers/key@Key",
+		"roblox-ts-template:out/server/services/create@Create": "server/services/create@Create",
+		"roblox-ts-template:out/server/services/bullet@Bullet": "server/services/bullet@Bullet",
+		"roblox-ts-template:out/server/services/hello@Hello": "server/services/hello@Hello",
+		"roblox-ts-template:out/server/services/playerattributes@PlayerAttributes": "server/services/playerattributes@PlayerAttributes",
+		"roblox-ts-template:out/shared/network@GlobalEvents": "shared/network@GlobalEvents",
+		"roblox-ts-template:out/shared/network@GlobalFunctions": "shared/network@GlobalFunctions",
+		"roblox-ts-template:out/server/services/connect@Connect": "server/services/connect@Connect",
+		"roblox-ts-template:out/server/services/enemy@Enemy": "server/services/enemy@Enemy",
+		"roblox-ts-template:out/server/services/player@Player": "server/services/player@Player",
+		"roblox-ts-template:out/server/services/playerDataStore@Player": "server/services/playerDataStore@Player",
+		"roblox-ts-template:out/server/services/playerDataStore@PlayerDateStore": "server/services/playerDataStore@PlayerDateStore",
+		"roblox-ts-template:out/server/services/playerAccess@PlayerAccess": "server/services/playerAccess@PlayerAccess",
+		"roblox-ts-template:out/shared/UnitTypes@MonsterConfig": "shared/UnitTypes@MonsterConfig",
+		"roblox-ts-template:out/shared/UnitTypes@HunterConfig": "shared/UnitTypes@HunterConfig",
+		"roblox-ts-template:out/server/services/BornUnit@BornUnit": "server/services/BornUnit@BornUnit",
+		"roblox-ts-template:out/server/Create@Create": "server/Create@Create"
+	},
+	"metadata": {}
+}

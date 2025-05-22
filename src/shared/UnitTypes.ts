@@ -1,4 +1,6 @@
-export type HunterUnit = {
+import { t } from "@rbxts/t";
+
+export type HunterAttribute = {
 	health: number;
 	maxHealth: number;
 	attack: number;
@@ -17,6 +19,12 @@ export type MonsterUnit = {
 	maxHealth: number;
 	attack: number;
 };
+
+export const HunterUnit = t.interface({
+	Type: t.literal("Hunter"), // 固定值为 "Hunter"
+	HunterId: t.number, // 必须是数字类型
+	Guid: t.string, // 必须是字符串类型
+});
 
 const monsterConfigs = [
 	{ Id: 1, Name: "Monster_L1", Level: 1, Health: 100, Attack: 10, Exp: 10 },

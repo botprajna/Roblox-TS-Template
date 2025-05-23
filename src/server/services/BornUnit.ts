@@ -5,104 +5,93 @@ import { HunterAttribute, HunterConfig } from "shared/UnitTypes";
 
 @Service({})
 export class BornUnit implements OnStart {
-	private static SPAWN_INTERVAL = 10;
-	private static _spawnLocation = new Vector3(0, 5, 0);
-	private static currentLevel = 1;
+	private SPAWN_INTERVAL = 10;
+	private _spawnLocation = new Vector3(0, 5, 0);
+	private currentLevel = 1;
+	private MAX_LEVEL = 5;
 
-	// 存储猎人实例与属性的映射
-	private static hunterInstances: Map<Model, HunterAttribute> = new Map();
-
-	// 存储所有猎人的配置和属性
-	private static allHunters: Array<{
-		config: (typeof HunterConfigs)[0];
-		instance?: Model;
-		attributes: HunterAttribute;
-	}> = [];
+	// 存储所有猎人实例及其属性
+	private hunters: Map<Model, HunterAttribute> = new Map();
 
 	onStart() {
-		BornUnit.initializeHunters();
-		BornUnit.startSpawning();
+		this.startSpawning();
 	}
 
-	// 初始化所有猎人配置和默认属性
-	private static initializeHunters() {
-		const configs = HunterConfig.GetAllConfigs();
-		this.allHunters = configs.map((config) => ({
-			config,
-			instance: undefined,
-			attributes: this.createInitialAttributes(config),
-		}));
-	}
+	private startSpawning() {
+		// 使用延迟循环生成猎人
+		while (this.currentLevel <= this.MAX_LEVEL) {
+			this.spawnHunter(this.currentLevel);
 
-	// 创建初始属性
-	private static createInitialAttributes(config: (typeof HunterConfigs)[0]): HunterAttribute {
-		return {
-			health: config.Health,
-			maxHealth: config.Health,
-			attack: config.Attack,
-			level: config.Level,
-			experience: 0,
-			experienceMax: config.Exp,
-			Gold: 0,
-			inventory: [],
-		};
-	}
+			// 等待指定间隔时间
+			wait(this.SPAWN_INTERVAL);
 
-	private static startSpawning() {
-		spawn(() => {
-			while (this.currentLevel <= 5) {
-				this.spawnHunter(this.currentLevel);
-				wait(this.SPAWN_INTERVAL);
-				this.currentLevel++;
-			}
-			print("所有等级猎人已生成完毕！");
-		});
-	}
-
-	private static spawnHunter(level: number) {
-		const hunterData = this.allHunters.find((h) => h.config.Level === level);
-		if (!hunterData) {
-			warn(`找不到等级 ${level} 的猎人配置`);
-			return;
+			// 下一个等级
+			this.currentLevel++;
 		}
 
+		print("所有等级猎人已生成完毕！");
+	}
+
+	private spawnHunter(level: number) {
+		// 获取猎人配置
+		const config = HunterConfig.GetHunterConfig(level);
+
 		try {
-			const modelPath = this.getModelPath(hunterData.config.ModelName);
-			const instance = modelPath.Clone();
+			// 获取模型路径
+			const model = this.getHunterModel(config.Name);
+			if (t.none(model)) {
+				warn(`找不到猎人模型: ${config.Name}`);
+				return;
+			}
+
+			// 克隆模型并放置到生成位置
+			const instance = model.Clone();
 			instance.PivotTo(new CFrame(this._spawnLocation));
 			instance.Parent = Workspace;
 
-			// 保存实例和属性的关联
-			hunterData.instance = instance;
-			this.hunterInstances.set(instance, hunterData.attributes);
+			// 创建猎人属性
+			const attributes: HunterAttribute = {
+				health: config.Health,
+				maxHealth: config.Health,
+				attack: config.Attack,
+				level: config.Level,
+				experience: 0,
+				experienceMax: config.Exp,
+				Gold: 0,
+				inventory: [],
+			};
 
-			this.printHunterInfo(hunterData.config, hunterData.attributes);
+			// 存储猎人实例和属性
+			this.hunters.set(instance, attributes);
+
+			// 打印生成信息
+			this.printHunterInfo(attributes);
 		} catch (e) {
-			warn(`猎人L${level}生成失败: ${e}`);
+			warn(`猎人 L${level} 生成失败: ${e}`);
 		}
 	}
 
-	private static getModelPath(modelName: string): Model {
-		const model = ReplicatedStorage.WaitForChild("Assets")?.WaitForChild("Monsters")?.FindFirstChild("modelName");
+	private getHunterModel(modelName: string): Model | undefined {
+		// 从ReplicatedStorage中获取猎人模型
+		const assets = ReplicatedStorage.FindFirstChild("Assets");
+		if (!assets) return undefined;
 
-		if (t.none(model)) {
-			warn(`模型 ${modelName} 不存在`);
-		}
-		return model as Model;
+		const monsters = assets.FindFirstChild("Monsters");
+		if (!monsters) return undefined;
+
+		const model = monsters.FindFirstChild(modelName);
+		return model?.IsA("Model") ? model : undefined;
 	}
 
 	// 打印单个猎人信息
-	private static printHunterInfo(config: (typeof HunterConfigs)[0], attributes: HunterAttribute) {
+	private printHunterInfo(attributes: HunterAttribute) {
 		const info = `
-            [猎人生成成功]
-            名称: ${config.Name}
-            等级: ${config.Level}
-            模型: ${config.ModelName}
-            生命值: ${attributes.health}
-            攻击力: ${attributes.attack}
-            经验值: ${attributes.experience}
-            金币: ${attributes.Gold}
-        `;
+	        [猎人生成成功]
+	        等级: ${attributes.level}
+	        生命值: ${attributes.health}
+	        攻击力: ${attributes.attack}
+	        经验值: ${attributes.experienceMax}
+	    `;
 		print(info);
 	}
 }

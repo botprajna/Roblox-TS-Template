@@ -14,14 +14,14 @@ export type Item = {
 	Name: string;
 	Count: number;
 };
-export type HunterConfigType = {
-	Id: number;
-	Name: string;
-	Level: number;
-	Health: number;
-	Attack: number;
-	Exp: number;
-};
+// export type HunterConfigType = {
+// 	Id: number;
+// 	Name: string;
+// 	Level: number;
+// 	Health: number;
+// 	Attack: number;
+// 	Exp: number;
+// };
 export type MonsterUnit = {
 	health: number;
 	maxHealth: number;

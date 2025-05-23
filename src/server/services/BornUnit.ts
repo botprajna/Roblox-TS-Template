@@ -1,18 +1,21 @@
 import { Service, OnStart } from "@flamework/core";
-import { HttpService, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { HunterConfig, HunterConfigType } from "shared/UnitTypes";
+import { HttpService, Players, ReplicatedStorage, Workspace } from "@rbxts/services";
+import { t } from "@rbxts/t";
+import { HunterAttribute, HunterConfig } from "shared/UnitTypes";
 
 @Service({})
 export class BornUnit implements OnStart {
-	private static SPAWN_INTERVAL = 5; // 生成间隔（秒）
-	private static _spawnLocation = new Vector3(0, 5, 0); // 生成坐标
-	private static currentLevel = 1; // 当前生成等级
+	private static SPAWN_INTERVAL = 10;
+	private static _spawnLocation = new Vector3(0, 5, 0);
+	private static currentLevel = 1;
+
+	// 使用Map存储对应的猎人属性
+	private playerHunterAttributes: Map<HunterConfig, HunterAttribute> = new Map();
 
 	onStart() {
 		BornUnit.startSpawning();
 	}
 
-	// 启动生成循环
 	private static startSpawning() {
 		spawn(() => {
 			while (this.currentLevel <= 5) {
@@ -24,49 +27,55 @@ export class BornUnit implements OnStart {
 		});
 	}
 
-	// 生成单个猎人
 	private static spawnHunter() {
-		// 获取当前等级的配置
 		const config = HunterConfig.GetHunterConfig(this.currentLevel);
 
 		try {
-			// 定位模型路径
 			const modelName = `Hunter_L${this.currentLevel}`;
 			const modelPath = this.getModelPath(modelName);
 
-			// 克隆并放置模型
 			const instance = modelPath.Clone();
 			instance.PivotTo(new CFrame(this._spawnLocation));
 			instance.Parent = Workspace;
 
-			// 打印生成信息
 			this.printHunterInfo(config, modelName);
+
+			// 为每个生成的猎人创建初始属性并存储
+			const initialAttributes: HunterAttribute = {
+				health: config.Health,
+				maxHealth: config.Health,
+				attack: config.Attack,
+				level: config.Level,
+				experience: 0,
+				experienceMax: config.Exp,
+				Gold: 0,
+				inventory: [],
+			};
 		} catch (e) {
 			warn(`猎人L${this.currentLevel}生成失败: ${e}`);
 		}
 	}
 
-	// 获取模型路径
 	private static getModelPath(modelName: string): Model {
 		const assets = ReplicatedStorage.WaitForChild("Assets");
 		const monsters = assets.WaitForChild("Monsters");
 		const model = monsters.FindFirstChild(modelName);
 
-		if (!model || !model.IsA("Model")) {
-			throw `模型${modelName}不存在或不是有效Model`;
+		if (t.none(model)) {
+			warn(`模型 ${modelName} 不存在`);
 		}
-		return model;
+		return model as Model;
 	}
-	// 打印猎人信息
-	private static printHunterInfo(config: HunterConfigType, modelName: string) {
+
+	private static printHunterInfo(config: HunterConfig, modelName: string) {
 		const info = `
-        [猎人生成] ${config.Name}
-        ID: ${config.Id}
-        等级: ${config.Level}
-        生命值: ${config.Health}
-        攻击力: ${config.Attack}
-        经验值: ${config.Exp}
-        `;
+			猎人生成：${modelName}
+			名称: ${config.Name}
+			等级: ${config.Level}
+			生命值: ${config.Health}
+			攻击力: ${config.Attack}
+			经验值: ${config.Exp}
+		`;
 		print(info);
 	}
 }

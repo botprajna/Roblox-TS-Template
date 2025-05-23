@@ -1,6 +1,8 @@
 import { t } from "@rbxts/t";
 
+//定义猎人属性
 export type HunterAttribute = {
+	name: string;
 	health: number;
 	maxHealth: number;
 	attack: number;
@@ -21,6 +23,7 @@ export type MonsterUnit = {
 	attack: number;
 };
 
+//定义猎人类型检查器
 export const HunterUnit = t.interface({
 	Type: t.literal("Hunter"), // 固定值为 "Hunter"
 	HunterId: t.number, // 必须是数字类型
@@ -34,6 +37,7 @@ const monsterConfigs = [
 	{ Id: 4, Name: "Monster_L4", Level: 4, Health: 400, Attack: 40 },
 	{ Id: 5, Name: "Monster_L5", Level: 5, Health: 500, Attack: 50 },
 ];
+//怪物配置类
 export class MonsterConfig {
 	static GetMonsterConfig(id: number) {
 		const config = monsterConfigs.find((config) => config.Id === id);
@@ -49,14 +53,12 @@ const HunterConfigs = [
 	{ Id: 4, Name: "Hunter_L4", Level: 4, Health: 400, Attack: 40, Exp: 40 },
 	{ Id: 5, Name: "Hunter_L5", Level: 5, Health: 500, Attack: 50, Exp: 50 },
 ];
+//猎人配置类
 export class HunterConfig {
 	static GetHunterConfig(id: number) {
 		const config = HunterConfigs.find((config) => config.Id === id);
 		assert(config, `HunterConfig:GetHunterConfig() - Invalid Hunter id: ${id}`);
 
 		return config;
-	}
-	static GetAllConfigs() {
-		return HunterConfigs;
 	}
 }

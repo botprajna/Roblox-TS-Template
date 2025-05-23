@@ -1,14 +1,16 @@
 import { Service, OnStart } from "@flamework/core";
-import { HttpService, Players, ReplicatedStorage, Workspace } from "@rbxts/services";
+import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import { HunterAttribute, HunterConfig } from "shared/UnitTypes";
 
 @Service({})
 export class BornUnit implements OnStart {
-	private SPAWN_INTERVAL = 10;
-	private _spawnLocation = new Vector3(0, 5, 0);
-	private currentLevel = 1;
-	private MAX_LEVEL = 5;
+	private SPAWN_INTERVAL = 15; // 生成间隔
+	private UPGRADE_INTERVAL = 2; // 升级间隔
+	private UPGRADE_TIMES = 4; // 升级4次
+	private _spawnLocation = new Vector3(0, 5, 0); // 生成位置
+	private currentLevel = 1; // 当前等级
+	private MAX_LEVEL = 5; // 最大等级
 
 	// 存储所有猎人实例及其属性
 	private hunters: Map<Model, HunterAttribute> = new Map();
@@ -20,16 +22,27 @@ export class BornUnit implements OnStart {
 	private startSpawning() {
 		// 使用延迟循环生成猎人
 		while (this.currentLevel <= this.MAX_LEVEL) {
-			this.spawnHunter(this.currentLevel);
+			// 生成猎人
+			const hunterInstance = this.spawnHunter(this.currentLevel);
+
+			if (hunterInstance) {
+				// 升级属性
+				spawn(() => this.upgradeHunter(hunterInstance, this.UPGRADE_TIMES));
+			}
 
 			// 等待指定间隔时间
 			wait(this.SPAWN_INTERVAL);
-
-			// 下一个等级
+			// 等级增加
 			this.currentLevel++;
 		}
 
 		print("所有等级猎人已生成完毕！");
+	}
+
+	private getHunterModel(modelName: string): Model | undefined {
+		// 从ReplicatedStorage中获取猎人模型
+		const model = ReplicatedStorage.FindFirstChild("Assets")?.FindFirstChild("Monsters")?.FindFirstChild(modelName);
+		return model?.IsA("Model") ? model : undefined;
 	}
 
 	private spawnHunter(level: number) {
@@ -51,6 +64,7 @@ export class BornUnit implements OnStart {
 
 			// 创建猎人属性
 			const attributes: HunterAttribute = {
+				name: config.Name,
 				health: config.Health,
 				maxHealth: config.Health,
 				attack: config.Attack,
@@ -66,32 +80,59 @@ export class BornUnit implements OnStart {
 
 			// 打印生成信息
 			this.printHunterInfo(attributes);
+
+			return instance; // 返回生成的猎人实例
 		} catch (e) {
 			warn(`猎人 L${level} 生成失败: ${e}`);
 		}
 	}
 
-	private getHunterModel(modelName: string): Model | undefined {
-		// 从ReplicatedStorage中获取猎人模型
-		const assets = ReplicatedStorage.FindFirstChild("Assets");
-		if (!assets) return undefined;
+	private upgradeHunter(hunterInstance: Model, times: number) {
+		for (let i = 0; i < times; i++) {
+			wait(this.UPGRADE_INTERVAL); // 每次升级前等待2秒
 
-		const monsters = assets.FindFirstChild("Monsters");
-		if (!monsters) return undefined;
+			const attributes = this.hunters.get(hunterInstance);
+			if (!attributes) return;
 
-		const model = monsters.FindFirstChild(modelName);
-		return model?.IsA("Model") ? model : undefined;
+			// 增强属性
+			attributes.level += 1;
+			attributes.health += 10;
+			attributes.maxHealth += 10;
+			attributes.attack += 3;
+			attributes.experienceMax += 3;
+
+			// 更新存储的属性
+			this.hunters.set(hunterInstance, attributes);
+
+			// 打印增强后的属性
+			this.printUpgradedInfo(attributes, i + 1);
+		}
 	}
 
 	// 打印单个猎人信息
 	private printHunterInfo(attributes: HunterAttribute) {
 		const info = `
 	        [猎人生成成功]
+			猎人名称: ${attributes.name}
 	        等级: ${attributes.level}
 	        生命值: ${attributes.health}
 	        攻击力: ${attributes.attack}
 	        经验值: ${attributes.experienceMax}
 	    `;
+		print(info);
+	}
+
+	// 打印增强后的猎人信息
+	private printUpgradedInfo(attributes: HunterAttribute, upgradeCount: number) {
+		const info = `
+				[猎人属性增强]
+				名称: ${attributes.name}
+				升级次数: ${upgradeCount}
+				新等级: ${attributes.level}
+				新生命值: ${attributes.health}
+				新攻击力: ${attributes.attack}
+				新经验值上限: ${attributes.experienceMax}
+			`;
 		print(info);
 	}
 }

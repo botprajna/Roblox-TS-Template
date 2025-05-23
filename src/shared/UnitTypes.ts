@@ -22,12 +22,13 @@ export type HunterConfigType = {
 	Attack: number;
 	Exp: number;
 };
-export type MonsterUnit = {
-	health: number;
-	maxHealth: number;
-	attack: number;
-};
 
+export const MonsterUnit = t.interface({
+	Type: t.literal("Monster"),
+	MonsterId: t.number,
+	Guid: t.string,
+});
+export type MonsterAttrKeys = typeof MonsterUnit;
 export const HunterUnit = t.interface({
 	Type: t.literal("Hunter"), // 固定值为 "Hunter"
 	HunterId: t.number, // 必须是数字类型

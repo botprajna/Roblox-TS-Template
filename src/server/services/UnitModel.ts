@@ -1,6 +1,6 @@
 import { Service, OnStart } from "@flamework/core";
 
 @Service({})
-export class Ser implements OnStart {
-	onStart() {}
+export class UnitModel {
+	GetModel() {}
 }

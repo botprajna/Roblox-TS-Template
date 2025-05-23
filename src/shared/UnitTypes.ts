@@ -14,6 +14,14 @@ export type Item = {
 	Name: string;
 	Count: number;
 };
+export type HunterConfigType = {
+	Id: number;
+	Name: string;
+	Level: number;
+	Health: number;
+	Attack: number;
+	Exp: number;
+};
 export type MonsterUnit = {
 	health: number;
 	maxHealth: number;
@@ -27,11 +35,11 @@ export const HunterUnit = t.interface({
 });
 
 const monsterConfigs = [
-	{ Id: 1, Name: "Monster_L1", Level: 1, Health: 100, Attack: 10, Exp: 10 },
-	{ Id: 2, Name: "Monster_L2", Level: 2, Health: 200, Attack: 20, Exp: 20 },
-	{ Id: 3, Name: "Monster_L3", Level: 3, Health: 300, Attack: 30, Exp: 30 },
-	{ Id: 4, Name: "Monster_L4", Level: 4, Health: 400, Attack: 40, Exp: 40 },
-	{ Id: 5, Name: "Monster_L5", Level: 5, Health: 500, Attack: 50, Exp: 50 },
+	{ Id: 1, Name: "Monster_L1", Level: 1, Health: 100, Attack: 10 },
+	{ Id: 2, Name: "Monster_L2", Level: 2, Health: 200, Attack: 20 },
+	{ Id: 3, Name: "Monster_L3", Level: 3, Health: 300, Attack: 30 },
+	{ Id: 4, Name: "Monster_L4", Level: 4, Health: 400, Attack: 40 },
+	{ Id: 5, Name: "Monster_L5", Level: 5, Health: 500, Attack: 50 },
 ];
 export class MonsterConfig {
 	static GetMonsterConfig(id: number) {
@@ -51,7 +59,7 @@ const HunterConfigs = [
 export class HunterConfig {
 	static GetHunterConfig(id: number) {
 		const config = HunterConfigs.find((config) => config.Id === id);
-		assert(config, `HunterConfig:GetMonsterConfig() - Invalid Hunter id: ${id}`);
+		assert(config, `HunterConfig:GetHunterConfig() - Invalid Hunter id: ${id}`);
 
 		return config;
 	}

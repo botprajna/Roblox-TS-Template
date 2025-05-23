@@ -20,7 +20,9 @@
 		"roblox-ts-template:out/shared/UnitTypes@HunterConfig": "shared/UnitTypes@HunterConfig",
 		"roblox-ts-template:out/server/services/BornUnit@BornUnit": "server/services/BornUnit@BornUnit",
 		"roblox-ts-template:out/server/Create@Create": "server/Create@Create",
-		"roblox-ts-template:out/server/services/ser@Ser": "server/services/ser@Ser"
+		"roblox-ts-template:out/server/services/ser@Ser": "server/services/ser@Ser",
+		"roblox-ts-template:out/server/services/HunterDataStore@HunterDataStore": "server/services/HunterDataStore@HunterDataStore",
+		"roblox-ts-template:out/server/services/HunterAttributes@HunterAttributes": "server/services/HunterAttributes@HunterAttributes"
 	},
 	"metadata": {}
 }

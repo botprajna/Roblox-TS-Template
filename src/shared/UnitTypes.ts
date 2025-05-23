@@ -14,14 +14,7 @@ export type Item = {
 	Name: string;
 	Count: number;
 };
-// export type HunterConfigType = {
-// 	Id: number;
-// 	Name: string;
-// 	Level: number;
-// 	Health: number;
-// 	Attack: number;
-// 	Exp: number;
-// };
+
 export type MonsterUnit = {
 	health: number;
 	maxHealth: number;
@@ -62,5 +55,8 @@ export class HunterConfig {
 		assert(config, `HunterConfig:GetHunterConfig() - Invalid Hunter id: ${id}`);
 
 		return config;
+	}
+	static GetAllConfigs() {
+		return HunterConfigs;
 	}
 }

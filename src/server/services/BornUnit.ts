@@ -9,17 +9,49 @@ export class BornUnit implements OnStart {
 	private static _spawnLocation = new Vector3(0, 5, 0);
 	private static currentLevel = 1;
 
-	// 使用Map存储对应的猎人属性
-	private playerHunterAttributes: Map<HunterConfig, HunterAttribute> = new Map();
+	// 存储猎人实例与属性的映射
+	private static hunterInstances: Map<Model, HunterAttribute> = new Map();
+
+	// 存储所有猎人的配置和属性
+	private static allHunters: Array<{
+		config: (typeof HunterConfigs)[0];
+		instance?: Model;
+		attributes: HunterAttribute;
+	}> = [];
 
 	onStart() {
+		BornUnit.initializeHunters();
 		BornUnit.startSpawning();
+	}
+
+	// 初始化所有猎人配置和默认属性
+	private static initializeHunters() {
+		const configs = HunterConfig.GetAllConfigs();
+		this.allHunters = configs.map((config) => ({
+			config,
+			instance: undefined,
+			attributes: this.createInitialAttributes(config),
+		}));
+	}
+
+	// 创建初始属性
+	private static createInitialAttributes(config: (typeof HunterConfigs)[0]): HunterAttribute {
+		return {
+			health: config.Health,
+			maxHealth: config.Health,
+			attack: config.Attack,
+			level: config.Level,
+			experience: 0,
+			experienceMax: config.Exp,
+			Gold: 0,
+			inventory: [],
+		};
 	}
 
 	private static startSpawning() {
 		spawn(() => {
 			while (this.currentLevel <= 5) {
-				this.spawnHunter();
+				this.spawnHunter(this.currentLevel);
 				wait(this.SPAWN_INTERVAL);
 				this.currentLevel++;
 			}
@@ -27,39 +59,31 @@ export class BornUnit implements OnStart {
 		});
 	}
 
-	private static spawnHunter() {
-		const config = HunterConfig.GetHunterConfig(this.currentLevel);
+	private static spawnHunter(level: number) {
+		const hunterData = this.allHunters.find((h) => h.config.Level === level);
+		if (!hunterData) {
+			warn(`找不到等级 ${level} 的猎人配置`);
+			return;
+		}
 
 		try {
-			const modelName = `Hunter_L${this.currentLevel}`;
-			const modelPath = this.getModelPath(modelName);
-
+			const modelPath = this.getModelPath(hunterData.config.ModelName);
 			const instance = modelPath.Clone();
 			instance.PivotTo(new CFrame(this._spawnLocation));
 			instance.Parent = Workspace;
 
-			this.printHunterInfo(config, modelName);
+			// 保存实例和属性的关联
+			hunterData.instance = instance;
+			this.hunterInstances.set(instance, hunterData.attributes);
 
-			// 为每个生成的猎人创建初始属性并存储
-			const initialAttributes: HunterAttribute = {
-				health: config.Health,
-				maxHealth: config.Health,
-				attack: config.Attack,
-				level: config.Level,
-				experience: 0,
-				experienceMax: config.Exp,
-				Gold: 0,
-				inventory: [],
-			};
+			this.printHunterInfo(hunterData.config, hunterData.attributes);
 		} catch (e) {
-			warn(`猎人L${this.currentLevel}生成失败: ${e}`);
+			warn(`猎人L${level}生成失败: ${e}`);
 		}
 	}
 
 	private static getModelPath(modelName: string): Model {
-		const assets = ReplicatedStorage.WaitForChild("Assets");
-		const monsters = assets.WaitForChild("Monsters");
-		const model = monsters.FindFirstChild(modelName);
+		const model = ReplicatedStorage.WaitForChild("Assets")?.WaitForChild("Monsters")?.FindFirstChild("modelName");
 
 		if (t.none(model)) {
 			warn(`模型 ${modelName} 不存在`);
@@ -67,15 +91,18 @@ export class BornUnit implements OnStart {
 		return model as Model;
 	}
 
-	private static printHunterInfo(config: HunterConfig, modelName: string) {
+	// 打印单个猎人信息
+	private static printHunterInfo(config: (typeof HunterConfigs)[0], attributes: HunterAttribute) {
 		const info = `
-			猎人生成：${modelName}
-			名称: ${config.Name}
-			等级: ${config.Level}
-			生命值: ${config.Health}
-			攻击力: ${config.Attack}
-			经验值: ${config.Exp}
-		`;
+            [猎人生成成功]
+            名称: ${config.Name}
+            等级: ${config.Level}
+            模型: ${config.ModelName}
+            生命值: ${attributes.health}
+            攻击力: ${attributes.attack}
+            经验值: ${attributes.experience}
+            金币: ${attributes.Gold}
+        `;
 		print(info);
 	}
 }

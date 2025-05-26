@@ -22,7 +22,8 @@
 		"roblox-ts-template:out/server/Create@Create": "server/Create@Create",
 		"roblox-ts-template:out/server/services/ser@Ser": "server/services/ser@Ser",
 		"roblox-ts-template:out/server/services/HunterDataStore@HunterDataStore": "server/services/HunterDataStore@HunterDataStore",
-		"roblox-ts-template:out/server/services/HunterAttributes@HunterAttributes": "server/services/HunterAttributes@HunterAttributes"
+		"roblox-ts-template:out/server/services/HunterAttributes@HunterAttributes": "server/services/HunterAttributes@HunterAttributes",
+		"roblox-ts-template:out/server/services/Upgrade@HunterSpawnService": "server/services/Upgrade@HunterSpawnService"
 	},
 	"metadata": {}
 }

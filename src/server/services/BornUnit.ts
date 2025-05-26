@@ -1,7 +1,7 @@
 import { Service, OnStart } from "@flamework/core";
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { t } from "@rbxts/t";
-import { HunterAttribute, HunterConfig } from "shared/UnitTypes";
+import { HunterConfig, UnitAttribute, UnitItem } from "shared/UnitTypes";
 
 @Service({})
 export class BornUnit implements OnStart {
@@ -12,8 +12,11 @@ export class BornUnit implements OnStart {
 	private currentLevel = 1; // 当前等级
 	private MAX_LEVEL = 5; // 最大等级
 
+	private REWARD_INTERVAL = 2; // 获取奖励时间间隔
+	private REWARD_TIMES = 4; // 奖励次数
+
 	// 存储所有猎人实例及其属性
-	private hunters: Map<Model, HunterAttribute> = new Map();
+	private hunters: Map<Model, UnitAttribute> = new Map();
 
 	onStart() {
 		this.startSpawning();
@@ -25,9 +28,12 @@ export class BornUnit implements OnStart {
 			// 生成猎人
 			const hunterInstance = this.spawnHunter(this.currentLevel);
 
+			// 如果生成成功，进行升级和奖励
 			if (hunterInstance) {
 				// 升级属性
 				spawn(() => this.upgradeHunter(hunterInstance, this.UPGRADE_TIMES));
+				// 获取奖励
+				spawn(() => this.getRewards(hunterInstance, this.REWARD_TIMES));
 			}
 
 			// 等待指定间隔时间
@@ -63,16 +69,16 @@ export class BornUnit implements OnStart {
 			instance.Parent = Workspace;
 
 			// 创建猎人属性
-			const attributes: HunterAttribute = {
-				name: config.Name,
-				health: config.Health,
-				maxHealth: config.Health,
-				attack: config.Attack,
-				level: config.Level,
-				experience: 0,
-				experienceMax: config.Exp,
+			const attributes: UnitAttribute = {
+				Name: config.Name,
+				Health: config.Health,
+				HealthMax: config.Health,
+				Attack: config.Attack,
+				Level: config.Level,
+				Exp: 0,
+				ExpMax: config.Exp,
 				Gold: 0,
-				inventory: [],
+				ItemBag: [],
 			};
 
 			// 存储猎人实例和属性
@@ -87,52 +93,126 @@ export class BornUnit implements OnStart {
 		}
 	}
 
+	// 升级猎人属性
 	private upgradeHunter(hunterInstance: Model, times: number) {
 		for (let i = 0; i < times; i++) {
 			wait(this.UPGRADE_INTERVAL); // 每次升级前等待2秒
 
 			const attributes = this.hunters.get(hunterInstance);
-			if (!attributes) return;
+			if (t.none(attributes)) {
+				warn(`猎人实例 ${hunterInstance.Name} 的属性不存在`);
+				return;
+			}
 
 			// 增强属性
-			attributes.level += 1;
-			attributes.health += 10;
-			attributes.maxHealth += 10;
-			attributes.attack += 3;
-			attributes.experienceMax += 3;
+			attributes.Level += 1;
+			attributes.Health += 10;
+			attributes.HealthMax += 10;
+			attributes.Attack += 3;
+			attributes.Exp = (attributes.Exp ?? 0) + 3;
+			attributes.ExpMax = (attributes.ExpMax ?? 0) + 3;
 
 			// 更新存储的属性
 			this.hunters.set(hunterInstance, attributes);
 
-			// 打印增强后的属性
+			// // 打印增强后的属性
 			this.printUpgradedInfo(attributes, i + 1);
 		}
 	}
 
+	// 获取奖励
+	private getRewards(hunterInstance: Model, times: number) {
+		for (let i = 0; i < times; i++) {
+			wait(this.REWARD_INTERVAL); // 每次奖励前等待2秒
+
+			const attributes = this.hunters.get(hunterInstance);
+			if (t.none(attributes)) {
+				warn(`猎人实例 ${hunterInstance.Name} 的属性不存在`);
+				return;
+			}
+			// 增加金币
+			if (t.none(attributes.Gold)) {
+				attributes.Gold = 0;
+			}
+			// 每次奖励增加5金币
+			attributes.Gold += 5;
+
+			// 添加物品"橘子"
+			const orangeItem: UnitItem = { Name: "橘子", Count: 1 };
+			this.addItemToItemBag(attributes.ItemBag, orangeItem);
+			//添加物品"苹果"
+			const appleItem: UnitItem = { Name: "苹果", Count: 1 };
+			this.addItemToItemBag(attributes.ItemBag, appleItem);
+
+			// 更新存储的属性
+			this.hunters.set(hunterInstance, attributes);
+			// 打印奖励信息
+			this.printRewardInfo(attributes, i + 1);
+		}
+
+		for (let i = 0; i < times; i++) {
+			wait(this.REWARD_INTERVAL);
+		}
+	}
+
+	private addItemToItemBag(ItemBag: UnitItem[] | undefined, orangeItem: UnitItem) {
+		if (t.none(ItemBag)) {
+			ItemBag = [];
+		}
+
+		// 检查物品是否已存在
+		const existingItem = ItemBag.find((item) => item.Name === orangeItem.Name);
+		if (existingItem) {
+			existingItem.Count += orangeItem.Count; // 增加数量
+		} else {
+			ItemBag.push(orangeItem); // 添加新物品
+		}
+	}
 	// 打印单个猎人信息
-	private printHunterInfo(attributes: HunterAttribute) {
+	private printHunterInfo(attributes: UnitAttribute) {
 		const info = `
 	        [猎人生成成功]
-			猎人名称: ${attributes.name}
-	        等级: ${attributes.level}
-	        生命值: ${attributes.health}
-	        攻击力: ${attributes.attack}
-	        经验值: ${attributes.experienceMax}
+			猎人名称: ${attributes.Name}
+	        等级: ${attributes.Level}
+	        生命值: ${attributes.Health}
+	        攻击力: ${attributes.Attack}
+			经验值上限: ${attributes.ExpMax}   
 	    `;
 		print(info);
 	}
 
-	// 打印增强后的猎人信息
-	private printUpgradedInfo(attributes: HunterAttribute, upgradeCount: number) {
+	// 打印猎人升级后的属性
+	private printUpgradedInfo(attributes: UnitAttribute, upgradeCount: number) {
 		const info = `
-				[猎人属性增强]
-				名称: ${attributes.name}
+				[猎人升级属性增强]
+				猎人名称: ${attributes.Name}
 				升级次数: ${upgradeCount}
-				新等级: ${attributes.level}
-				新生命值: ${attributes.health}
-				新攻击力: ${attributes.attack}
-				新经验值上限: ${attributes.experienceMax}
+				当前等级: ${attributes.Level}
+				当前生命值: ${attributes.Health}
+				当前攻击力: ${attributes.Attack}
+				当前经验值上限: ${attributes.ExpMax}
 			`;
 		print(info);
+	}
+
+	// 打印猎人奖励信息
+	private printRewardInfo(attributes: UnitAttribute, rewardCount: number) {
+		const info = `
+					[猎人获取奖励]
+					猎人名称：${attributes.Name}
+					获取奖励次数：${rewardCount}
+					当前金币：${attributes.Gold}
+					物品栏：${this.formatItemBag(attributes.ItemBag)}
+		`;
+		print(info);
+	}
+
+	// 格式化物品栏信息
+	private formatItemBag(ItemBag: UnitItem[] | undefined) {
+		if (t.none(ItemBag) || ItemBag.size() === 0) {
+			return "空";
+		}
+		// 将物品栏格式化为字符串
+		return ItemBag.map((item) => `${item.Name} x${item.Count}`).join(", ");
 	}
 }

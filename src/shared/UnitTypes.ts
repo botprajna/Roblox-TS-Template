@@ -21,30 +21,21 @@ export type UnitItem = {
 
 export type UnitAttrKeys = keyof UnitAttribute;
 
-//定义猎人类型检查器
-export const HunterUnitChecker = t.interface({
-	Type: t.literal("Hunter"), // 固定值为 "Hunter"
-	HunterId: t.number, // 必须是数字类型
-	Guid: t.string, // 必须是字符串类型
+export const HunterUnit = t.interface({
+	Type: t.literal("Hunter"),
+	HunterId: t.number,
+	Guid: t.string,
 });
-
-export const MonsterUnitChecker = t.interface({
-	Type: t.literal("Monster"), // 固定值为 "Monster"
-	MonsterId: t.number, // 必须是数字类型
-	Guid: t.string, // 必须是字符串类型
+export const MonsterUnit = t.interface({
+	Type: t.literal("Monster"),
+	MonsterId: t.number,
+	Guid: t.string,
 });
+export const Unit = t.union(HunterUnit, MonsterUnit);
 
-export type MonsterUnit = t.static<typeof MonsterUnitChecker>;
-
-// export type MonsterUnit = t.static<typeof MonsterUnit>;
-
-export const UnitChecker = t.union(HunterUnitChecker, MonsterUnitChecker);
-
-const valueIsMonster = MonsterUnitChecker({});
-
-// 定义一个联合类型，表示猎人或怪物的单位类型
-export type HunterUnit = t.static<typeof HunterUnitChecker>;
-export type Unit = t.static<typeof UnitChecker>;
+export type HunterUnit = t.static<typeof HunterUnit>;
+export type MonsterUnit = t.static<typeof MonsterUnit>;
+export type Unit = t.static<typeof Unit>;
 
 const monsterConfigs = [
 	{ Id: 1, Name: "Monster_L1", Level: 1, Health: 100, Attack: 10 },

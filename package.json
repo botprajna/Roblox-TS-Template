@@ -35,6 +35,7 @@
     "@rbxts/react-roblox": "^17.2.1",
     "@rbxts/rust-classes": "^0.13.0",
     "@rbxts/services": "^1.5.5",
+    "@rbxts/simplepath": "^2.2.1-ts.2",
     "@rbxts/t": "^3.1.1",
     "@rbxts/ui-labs": "^2.3.0",
     "rbxts-transform-debug": "^2.2.0"

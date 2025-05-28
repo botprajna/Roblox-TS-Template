@@ -2,6 +2,8 @@ import { Service, OnStart } from "@flamework/core";
 import { ReplicatedStorage } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import Log from "@rbxts/log";
+import { BehaviorTree3 } from "@rbxts/behavior-tree-5";
+
 @Service({})
 export class Create implements OnStart {
 	private _ground!: Model;

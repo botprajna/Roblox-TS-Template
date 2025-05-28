@@ -23,8 +23,14 @@
 		"roblox-ts-template:out/server/services/ser@Ser": "server/services/ser@Ser",
 		"roblox-ts-template:out/server/services/HunterDataStore@HunterDataStore": "server/services/HunterDataStore@HunterDataStore",
 		"roblox-ts-template:out/server/services/HunterAttributes@HunterAttributes": "server/services/HunterAttributes@HunterAttributes",
-		"roblox-ts-template:out/server/services/MonsterAi@MonsterAi": "server/services/MonsterAi@MonsterAi",
-		"roblox-ts-template:out/server/services/UnitModel@UnitModel": "server/services/UnitModel@UnitModel"
+		"roblox-ts-template:out/server/services/Upgrade@HunterSpawnService": "server/services/Upgrade@HunterSpawnService",
+		"roblox-ts-template:out/server/services/Shop@Shop": "server/services/Shop@Shop",
+		"roblox-ts-template:out/server/services/GetGlod@GetGlod": "server/services/GetGlod@GetGlod",
+		"roblox-ts-template:out/server/services/UpgradeHunter@UpgradeHunter": "server/services/UpgradeHunter@UpgradeHunter",
+		"roblox-ts-template:out/server/services/GetReward@GetGold": "server/services/GetReward@GetGold",
+		"roblox-ts-template:out/server/services/HunterManager@HunterManager": "server/services/HunterManager@HunterManager",
+		"roblox-ts-template:out/server/services/Born@BornUnit": "server/services/Born@BornUnit",
+		"roblox-ts-template:out/server/services/Born@Born": "server/services/Born@Born"
 	},
 	"metadata": {}
 }

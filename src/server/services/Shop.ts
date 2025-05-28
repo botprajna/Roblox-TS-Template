@@ -1,6 +1,6 @@
 import { Service, OnStart } from "@flamework/core";
 
 @Service({})
-export class Hello implements OnStart {
+export class Shop implements OnStart {
 	onStart() {}
 }

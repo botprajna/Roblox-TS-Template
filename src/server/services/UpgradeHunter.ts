@@ -1,17 +1,18 @@
-import { Service } from "@flamework/core";
+import { OnStart, Service } from "@flamework/core";
 import { HunterUnit, UnitAttribute } from "shared/UnitTypes";
 import { HunterManager } from "./HunterManager";
 import { t } from "@rbxts/t";
 
 @Service({})
-export class UpgradeHunter {
+export class UpgradeHunter implements OnStart {
 	private UPGRADE_INTERVAL = 2; // 升级间隔
 	private UPGRADE_TIMES = 4; // 升级次数
 
 	constructor(private hunterManager: HunterManager) {}
+	onStart() {}
 
 	// 开始升级循环
-	public startAutoUpgrade(hunter: HunterUnit) {
+	public StartAutoUpgrade(hunter: HunterUnit) {
 		for (let i = 0; i < this.UPGRADE_TIMES; i++) {
 			wait(this.UPGRADE_INTERVAL);
 			this.upgradeAttributes(hunter, i + 1);
@@ -20,11 +21,10 @@ export class UpgradeHunter {
 
 	// 升级属性
 	private upgradeAttributes(hunter: HunterUnit, upgradeCount: number) {
-		const attributes = this.hunterManager.getAttributes(hunter);
-		if (t.none(attributes)) {
-			return;
-		}
+		const attributes = this.hunterManager.GetAttributes(hunter);
+		if (t.none(attributes)) return;
 
+		// 升级逻辑
 		attributes.Level++;
 		attributes.Health += 10;
 		attributes.HealthMax += 10;
@@ -32,7 +32,8 @@ export class UpgradeHunter {
 		attributes.Exp = (attributes.Exp ?? 0) + 3;
 		attributes.ExpMax = (attributes.ExpMax ?? 0) + 3;
 
-		this.hunterManager.updateAttributes(hunter, attributes);
+		// 更新存储
+		this.hunterManager.UpdateAttributes(hunter, attributes);
 		// // 打印增强后的属性
 		this.printUpgradedInfo(attributes, upgradeCount);
 	}

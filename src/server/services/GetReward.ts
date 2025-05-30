@@ -1,46 +1,18 @@
-import { Service } from "@flamework/core";
+import { OnStart, Service } from "@flamework/core";
 import { HunterUnit, UnitAttribute, UnitItem } from "shared/UnitTypes";
 import { HunterManager } from "./HunterManager";
 import { t } from "@rbxts/t";
 
 @Service({})
-export class GetGold {
+export class GetReward implements OnStart {
 	private REWARD_INTERVAL = 2; //奖励间隔
 	private REWARD_TIMES = 4; //奖励次数
 
 	constructor(private hunterManager: HunterManager) {}
-
-	// 获得奖励循环
-	public startAutoReward(hunter: HunterUnit) {
-		for (let i = 0; i < this.REWARD_TIMES; i++) {
-			wait(this.REWARD_INTERVAL);
-			this.addRewards(hunter, i + 1);
-		}
-	}
-
-	// 奖励获取逻辑
-	private addRewards(hunter: HunterUnit, rewardCount: number) {
-		const attributes = this.hunterManager.getAttributes(hunter);
-		if (t.none(attributes)) {
-			return;
-		}
-
-		// 增加金币（空值检查）
-		attributes.Gold = (attributes.Gold ?? 0) + 5;
-		// 添加物品到物品栏
-		this.addItemToItemBag(attributes.ItemBag ?? [], {
-			Name: "橘子",
-			Count: 1,
-		});
-
-		// 更新属性
-		this.hunterManager.updateAttributes(hunter, attributes);
-		// 打印奖励信息
-		this.printRewardInfo(attributes, rewardCount);
-	}
+	onStart() {}
 
 	// 将物品添加到物品栏
-	private addItemToItemBag(ItemBag: UnitItem[] | undefined, orangeItem: UnitItem) {
+	AddItemToItemBag(ItemBag: UnitItem[] | undefined, orangeItem: UnitItem) {
 		if (t.none(ItemBag)) {
 			ItemBag = [];
 		}
@@ -53,6 +25,33 @@ export class GetGold {
 		} else {
 			ItemBag.push(orangeItem); // 添加新物品
 		}
+	}
+
+	// 获得奖励循环
+	public StartAutoReward(hunter: HunterUnit) {
+		for (let i = 0; i < this.REWARD_TIMES; i++) {
+			wait(this.REWARD_INTERVAL);
+			this.addRewards(hunter, i + 1);
+		}
+	}
+
+	// 奖励获取逻辑
+	private addRewards(hunter: HunterUnit, rewardCount: number) {
+		const attributes = this.hunterManager.GetAttributes(hunter);
+		if (t.none(attributes)) return;
+
+		// 增加金币（空值检查）
+		attributes.Gold = (attributes.Gold ?? 0) + 5;
+		// 添加物品到物品栏
+		this.AddItemToItemBag(attributes.ItemBag ?? [], {
+			Name: "橘子",
+			Count: 1,
+		});
+
+		// 更新存储
+		this.hunterManager.UpdateAttributes(hunter, attributes);
+		// 打印奖励信息
+		this.printRewardInfo(attributes, rewardCount);
 	}
 
 	// 打印猎人奖励信息

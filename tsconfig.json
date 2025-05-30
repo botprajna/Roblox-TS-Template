@@ -28,7 +28,16 @@
 		"plugins": [
 			{
 				"transform": "rbxts-transformer-flamework"
-			}
+			},
+			{
+				"transform": "rbxts-transform-debug",
+				"enabled": true,
+				"verbose": false,
+				"version": 2,
+				"environmentRequires": {
+					//"NODE_ENV": "development"
+				},
+			},
 		]
 	}
 }

@@ -30,7 +30,13 @@
 		"roblox-ts-template:out/server/services/GetReward@GetGold": "server/services/GetReward@GetGold",
 		"roblox-ts-template:out/server/services/HunterManager@HunterManager": "server/services/HunterManager@HunterManager",
 		"roblox-ts-template:out/server/services/Born@BornUnit": "server/services/Born@BornUnit",
-		"roblox-ts-template:out/server/services/Born@Born": "server/services/Born@Born"
+		"roblox-ts-template:out/server/services/Born@Born": "server/services/Born@Born",
+		"roblox-ts-template:out/server/services/UnitModel@UnitModel": "server/services/UnitModel@UnitModel",
+		"roblox-ts-template:out/server/services/MonsterAi@MonsterAi": "server/services/MonsterAi@MonsterAi",
+		"roblox-ts-template:out/server/services/SceneService@SceneService": "server/services/SceneService@SceneService",
+		"roblox-ts-template:out/server/services/MonsterAi@UnitAiMgr": "server/services/MonsterAi@UnitAiMgr",
+		"roblox-ts-template:out/server/services/UnitSkill@UnitSkill": "server/services/UnitSkill@UnitSkill",
+		"roblox-ts-template:out/server/services/UnitAnimation@UnitAnimation": "server/services/UnitAnimation@UnitAnimation"
 	},
 	"metadata": {}
 }

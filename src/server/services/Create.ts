@@ -1,5 +1,5 @@
 import { Service, OnStart } from "@flamework/core";
-import { ReplicatedStorage } from "@rbxts/services";
+import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import Log from "@rbxts/log";
 import { BehaviorTree3 } from "@rbxts/behavior-tree-5";
@@ -7,9 +7,13 @@ import { BehaviorTree3 } from "@rbxts/behavior-tree-5";
 @Service({})
 export class Create implements OnStart {
 	private _ground!: Model;
+	private _spawnRegions: Part[] = [];
+
+	constructor() {}
 
 	onStart() {
 		this._ground = this.LoadScene();
+		this._initializeSpawnRegions();
 	}
 
 	GetMonsterSpawnLocation(): Vector3 {
@@ -32,8 +36,29 @@ export class Create implements OnStart {
 
 		return new Vector3(x, location.Position.Y, z);
 	}
+
+	// 初始化三个固定生成区域
+	private _initializeSpawnRegions() {
+		const regionPositions = [
+			new Vector3(25, 0, 20), // 区域1坐标
+			new Vector3(-35, 0, 30), // 区域2坐标
+			new Vector3(-35, 0, -15), // 区域3坐标
+		];
+
+		regionPositions.forEach((pos) => {
+			const region = new Instance("Part");
+			region.Name = "MonsterSpawnRegion";
+			region.Size = new Vector3(5, 1, 5); // 区域大小
+			region.Position = pos;
+			region.Anchored = true;
+			region.Transparency = 1; // 调试
+			region.Parent = this._ground;
+			this._spawnRegions.push(region);
+		});
+	}
+
 	private LoadScene() {
-		const ground = ReplicatedStorage.FindFirstChild("Ground", true)?.Clone() as Model;
+		const ground = ReplicatedStorage.FindFirstChild("ground", true)?.Clone() as Model;
 		if (t.none(ground)) {
 			Log.Error("SceneService:LoadScene() - Ground not found");
 		}

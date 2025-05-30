@@ -3,8 +3,9 @@ import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { HunterConfig, HunterUnit, UnitAttribute } from "shared/UnitTypes";
 import { HunterManager } from "./HunterManager";
 import { UpgradeHunter } from "./UpgradeHunter";
-import { GetGold } from "./GetReward";
+import { GetReward } from "./GetReward";
 import { t } from "@rbxts/t";
+import { UnitModel } from "./UnitModel";
 
 @Service({})
 export class BornUnit implements OnStart {
@@ -16,7 +17,8 @@ export class BornUnit implements OnStart {
 	constructor(
 		private hunterManager: HunterManager,
 		private upgradeService: UpgradeHunter,
-		private rewardService: GetGold,
+		private rewardService: GetReward,
+		private unitModel: UnitModel,
 	) {}
 
 	onStart() {
@@ -26,15 +28,17 @@ export class BornUnit implements OnStart {
 	// 猎人生成循环
 	private startSpawning() {
 		while (this.currentLevel <= this.MAX_LEVEL) {
+			// 生成猎人并获取实例和数据
 			const { instance, hunterUnit } = this.spawnHunter(this.currentLevel) ?? {};
 			if (instance && hunterUnit) {
 				// 启动升级和奖励循环
-				spawn(() => this.upgradeService.startAutoUpgrade(hunterUnit));
-				spawn(() => this.rewardService.startAutoReward(hunterUnit));
+				spawn(() => this.upgradeService.StartAutoUpgrade(hunterUnit));
+				spawn(() => this.rewardService.StartAutoReward(hunterUnit));
 			}
 			wait(this.SPAWN_INTERVAL);
 			this.currentLevel++;
 		}
+		print("猎人全部生成完毕！");
 	}
 
 	private getHunterModel(modelName: string): Model | undefined {
@@ -79,8 +83,9 @@ export class BornUnit implements OnStart {
 				ItemBag: [],
 			};
 
+			this.unitModel.SetModel(hunterUnit, instance);
 			// 存储猎人实例和属性
-			this.hunterManager.addHunter(hunterUnit, attributes);
+			this.hunterManager.AddHunter(hunterUnit, attributes);
 
 			// 打印生成信息
 			this.printHunterInfo(attributes);

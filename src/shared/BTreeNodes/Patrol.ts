@@ -1,4 +1,4 @@
-import { TREE_OUTCOME } from "@rbxts/behavior-tree-5";
+import { FAIL, RUNNING, SUCCESS, TREE_OUTCOME } from "@rbxts/behavior-tree-5";
 import Path from "@rbxts/simplepath";
 import { t } from "@rbxts/t";
 import { $assert } from "rbxts-transform-debug";
@@ -58,4 +58,19 @@ export function finish(obj: Obj, status: TREE_OUTCOME) {
 
 	data.Destroy();
 	findPathData.delete(obj.Unit);
+}
+
+export function run(obj: Obj, ...args: unknown[]) {
+	//如果发现附近有敌人，打断当前行为
+	const nearbyEnemyCount = obj.UnitModelMgr.GetNearbyModels(obj.Unit, obj.CheckEnemyRadius)
+		.filter((model) => model.GetAttribute("UnitType") === "PlayerUnit")
+		.size();
+	if (nearbyEnemyCount > 0) return FAIL;
+
+	const data = findPathData.get(obj.Unit);
+	$assert(t.any(data), "data is not defined");
+
+	if (data.state === "Moving") return RUNNING;
+	if (data.state === "Reached") return SUCCESS;
+	if (data.state === "Error") return FAIL;
 }

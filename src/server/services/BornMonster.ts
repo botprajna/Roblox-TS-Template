@@ -3,7 +3,7 @@ import { UnitModel } from "./UnitModel";
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { MonsterConfig, MonsterUnit } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
-import { Create } from "./Create";
+import { SceneService } from "./SceneService";
 
 @Service({})
 export class BornMonster implements OnStart {
@@ -12,7 +12,7 @@ export class BornMonster implements OnStart {
 	private MAX_LEVEL = 5; // 最大等级
 
 	constructor(
-		private createService: Create,
+		private sceneService: SceneService,
 		private unitModel: UnitModel,
 	) {}
 
@@ -30,9 +30,7 @@ export class BornMonster implements OnStart {
 	}
 
 	private getMonsterModel(modelName: string): Model | undefined {
-		const model = ReplicatedStorage.FindFirstChild("Assets")
-			?.FindFirstChild("Monsters")
-			?.FindFirstChild("Monster_L1");
+		const model = ReplicatedStorage.FindFirstChild("Assets")?.FindFirstChild("Monsters")?.FindFirstChild(modelName);
 		return model?.IsA("Model") ? model : undefined;
 	}
 
@@ -47,7 +45,7 @@ export class BornMonster implements OnStart {
 			}
 
 			const instance = model.Clone();
-			const spawnLocation = this.createService.GetMonsterSpawnLocation();
+			const spawnLocation = this.sceneService.GetMonsterSpawnLocation();
 			instance.PivotTo(new CFrame(spawnLocation));
 			instance.Parent = Workspace;
 

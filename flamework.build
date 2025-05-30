@@ -42,7 +42,10 @@
 		"roblox-ts-template:out/server/services/SceneService@SceneService": "server/services/SceneService@SceneService",
 		"roblox-ts-template:out/server/services/UnitSkill@UnitSkill": "server/services/UnitSkill@UnitSkill",
 		"roblox-ts-template:out/server/services/MonsterAi@UnitAiMgr": "server/services/MonsterAi@UnitAiMgr",
-		"roblox-ts-template:out/server/services/UnitAnimation@UnitAnimation": "server/services/UnitAnimation@UnitAnimation"
+		"roblox-ts-template:out/server/services/UnitAnimation@UnitAnimation": "server/services/UnitAnimation@UnitAnimation",
+		"roblox-ts-template:out/server/services/SceneService@Create": "server/services/SceneService@Create",
+		"roblox-ts-template:out/server/services/SceneService@$p:error": "server/services/SceneService@$p:error",
+		"roblox-ts-template:out/server/services/SceneService@Scen": "server/services/SceneService@Scen"
 	},
 	"metadata": {}
 }

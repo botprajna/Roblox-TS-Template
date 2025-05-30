@@ -9,18 +9,17 @@ import { UnitModel } from "./UnitModel";
 export class Shop implements OnStart {
 	// 建筑物数据存储
 	private constructionData = {
-		exchangeCount: 0, // 总交换次数计数器
+		exchangeCount: 0, // 总交换次数
 		gold: 0, // 建筑物获得的总金币数
 		oranges: 0, // 建筑物获得的总橘子数
 	};
 
 	private DETECTION_RANGE = 6; // 检测范围
-	private EXCHANGE_INTERVAL = 5; // 交换间隔时间
-	private CHECK_INTERVAL = 5; // 检测循环间隔
-	private MAX_LEVEL = 5; // 最大猎人等级
+	private EXCHANGE_INTERVAL = 4; // 交换间隔时间
+	private CHECK_INTERVAL = 4; // 检测间隔
 
 	private constructionModel: Model | undefined; // 建筑物模型
-	private activeExchanges = new Map<HunterUnit, boolean>(); // 正在交换的猎人标记
+	private activeHunters = new Map<HunterUnit, boolean>(); // 正在交换的猎人标记
 
 	constructor(
 		private hunterManager: HunterManager,
@@ -29,88 +28,103 @@ export class Shop implements OnStart {
 
 	onStart() {
 		this.initializeConstruction();
-		this.checkHuntersNearby();
+		this.startExchangeLoop();
 	}
 
 	// 初始化建筑物模型
 	private initializeConstruction() {
-		this.constructionModel = this.getConstructionModel();
+		this.constructionModel = Workspace.FindFirstChild("ConstructionModel") as Model;
 		if (this.constructionModel) {
+			// 设置建筑物初始位置和父级
+			this.constructionModel.PivotTo(new CFrame(new Vector3(0, 5, 5)));
+			this.constructionModel.Parent = Workspace;
 			// print("建筑物模型初始化成功");
 		} else {
-			// warn("建筑物模型初始化失败");
+			warn("建筑物模型初始化失败");
 		}
 	}
 
-	// 从Workspace获取建筑物模型
-	private getConstructionModel(): Model | undefined {
-		const model = Workspace.FindFirstChild("ConstructionModel");
-		if (model?.IsA("Model")) {
-			// 设置建筑物位置
-			model.PivotTo(new CFrame(new Vector3(0, 5, 5)));
-			model.Parent = Workspace;
-			return model;
-		}
-		return undefined;
+	// 启动交换循环
+	private startExchangeLoop() {
+		spawn(() => {
+			const running = true;
+			while (running) {
+				wait(this.CHECK_INTERVAL);
+				this.checkAndProcessHunters();
+			}
+		});
 	}
 
-	// 检测附近的猎人
-	private checkHuntersNearby() {
-		// 建筑物模型不存在时直接返回
+	// 检测并处理附近的猎人
+	private checkAndProcessHunters() {
 		if (t.none(this.constructionModel)) return;
 
 		const constructionPos = this.constructionModel.GetPivot().Position;
+		const allHunters = this.getAllHunters();
 
-		// 遍历所有猎人
-		for (const [hunterUnit] of this.hunterManager.Hunters) {
+		for (const hunterUnit of allHunters) {
 			// 跳过已在交换中的猎人
-			if (this.activeExchanges.get(hunterUnit)) continue;
+			if (this.activeHunters.get(hunterUnit)) continue;
 
 			const hunterModel = this.unitModel.GetModel(hunterUnit);
-			if (t.none(hunterModel)) continue;
+			if (t.none(hunterModel) || t.none(hunterModel.PrimaryPart)) continue;
 
 			// 计算距离
-			const distance = hunterModel.GetPivot().Position.sub(constructionPos).Magnitude;
+			const distance = hunterModel.PrimaryPart.Position.sub(constructionPos).Magnitude;
 
 			// 距离检测
 			if (distance <= this.DETECTION_RANGE) {
-				this.initiateExchange(hunterUnit);
+				this.startExchangeWithHunter(hunterUnit);
 			}
 		}
 	}
 
-	// 初始化与猎人的交换流程
-	private initiateExchange(hunterUnit: HunterUnit) {
+	// 获取所有猎人
+	private getAllHunters(): HunterUnit[] {
+		const hunters: HunterUnit[] = [];
+		for (const [hunterUnit] of this.hunterManager.Hunters) {
+			hunters.push(hunterUnit);
+		}
+		return hunters;
+	}
+
+	// 开始与猎人的交换流程
+	private startExchangeWithHunter(hunterUnit: HunterUnit) {
 		// 标记为正在交换
-		this.activeExchanges.set(hunterUnit, true);
+		this.activeHunters.set(hunterUnit, true);
 
-		// 在新协程中执行交换
 		spawn(() => {
-			wait(this.EXCHANGE_INTERVAL); // 等待交换间隔
+			const active = true;
+			while (active) {
+				const attributes = this.hunterManager.GetAttributes(hunterUnit);
+				if (t.none(attributes)) break;
 
-			// 执行单次交换
-			this.executeExchange(hunterUnit);
+				// 检查资源是否足够
+				const orangeCount = this.getItemCount(attributes.ItemBag, "橘子");
+				const hunterGold = attributes.Gold ?? 0;
+
+				if (hunterGold < 5 || orangeCount < 1) {
+					print(`${attributes.Name} 资源不足，停止交换 (金币: ${hunterGold}, 橘子: ${orangeCount})`);
+					return;
+				}
+
+				// 执行交换
+				this.executeExchange(hunterUnit, attributes);
+
+				// 等待交换间隔
+				wait(this.EXCHANGE_INTERVAL);
+			}
 
 			// 交换完成后清除标记
-			this.activeExchanges.delete(hunterUnit);
+			this.activeHunters.delete(hunterUnit);
 		});
 	}
 
 	// 执行交换逻辑
-	private executeExchange(hunterUnit: HunterUnit) {
-		const attributes = this.hunterManager.GetAttributes(hunterUnit);
-		if (t.none(attributes)) return;
-
+	private executeExchange(hunterUnit: HunterUnit, attributes: UnitAttribute) {
 		// 获取当前资源数量
-		const orangeItem = (attributes.ItemBag ?? []).find((item) => item.Name === "橘子");
-		const orangeCount = orangeItem?.Count ?? 0;
+		const orangeCount = this.getItemCount(attributes.ItemBag, "橘子");
 		const hunterGold = attributes.Gold ?? 0;
-
-		// 资源不足检查
-		if (hunterGold < 5 || orangeCount < 1) {
-			print(`${attributes.Name} 资源不足 (金币: ${hunterGold}, 橘子: ${orangeCount})`);
-			return;
-		}
 
 		// 扣除猎人资源
 		attributes.Gold = hunterGold - 5;
@@ -134,9 +148,9 @@ export class Shop implements OnStart {
 		if (itemIndex >= 0) {
 			const item = bag[itemIndex];
 			if (item.Count > count) {
-				item.Count -= count; // 减少数量
+				item.Count -= count;
 			} else {
-				bag.remove(itemIndex); // 完全移除
+				bag.remove(itemIndex);
 			}
 		}
 	}
@@ -163,9 +177,9 @@ export class Shop implements OnStart {
 	}
 
 	// 获取指定物品的数量
-	private getItemCount(bag: UnitItem[] | undefined, itemName: string): string {
-		if (!bag || bag.size() === 0) return "0";
+	private getItemCount(bag: UnitItem[] | undefined, itemName: string): number {
+		if (!bag || bag.size() === 0) return 0;
 		const item = bag.find((i) => i.Name === itemName);
-		return item ? tostring(item.Count) : "0";
+		return item ? item.Count : 0;
 	}
 }

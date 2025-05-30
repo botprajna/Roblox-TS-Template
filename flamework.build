@@ -38,7 +38,14 @@
 		"roblox-ts-template:out/server/services/BornMonsster@BornMonsster": "server/services/BornMonsster@BornMonsster",
 		"roblox-ts-template:out/server/services/BornMonster@BornMonsster": "server/services/BornMonster@BornMonsster",
 		"roblox-ts-template:out/server/services/BornMonster@BornMonster": "server/services/BornMonster@BornMonster",
-		"roblox-ts-template:out/server/services/Create@Create": "server/services/Create@Create"
+		"roblox-ts-template:out/server/services/Create@Create": "server/services/Create@Create",
+		"roblox-ts-template:out/server/services/SceneService@SceneService": "server/services/SceneService@SceneService",
+		"roblox-ts-template:out/server/services/UnitSkill@UnitSkill": "server/services/UnitSkill@UnitSkill",
+		"roblox-ts-template:out/server/services/MonsterAi@UnitAiMgr": "server/services/MonsterAi@UnitAiMgr",
+		"roblox-ts-template:out/server/services/UnitAnimation@UnitAnimation": "server/services/UnitAnimation@UnitAnimation",
+		"roblox-ts-template:out/server/services/SceneService@Create": "server/services/SceneService@Create",
+		"roblox-ts-template:out/server/services/SceneService@$p:error": "server/services/SceneService@$p:error",
+		"roblox-ts-template:out/server/services/SceneService@Scen": "server/services/SceneService@Scen"
 	},
 	"metadata": {}
 }

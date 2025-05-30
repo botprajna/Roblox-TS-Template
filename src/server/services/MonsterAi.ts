@@ -36,11 +36,11 @@ export class MonsterAi {
 	createAi(unit: Unit) {
 		if (MonsterUnit(unit)) {
 			// 怪物AI
-			$warn("CreateAI-Monster", unit);
+			warn("CreateAI-Monster", unit);
 			const unitModel = this._unitModelMgr.GetModel(unit);
 			const humanoid = unitModel.FindFirstChildWhichIsA("Humanoid");
-			$assert(unitModel, "UnitModel not found");
-			$assert(humanoid, "Humanoid not found");
+			assert(unitModel, "UnitModel not found");
+			assert(humanoid, "Humanoid not found");
 			const runObj: MonsterBTreeObj = {
 				Unit: unit as MonsterUnit,
 				CheckEnemyRadius: 20,
@@ -49,6 +49,7 @@ export class MonsterAi {
 				UnitModelMgr: this._unitModelMgr,
 				UnitActionHandler: {
 					Attack() {},
+					// 移动
 					MoveTo(position, timeout) {
 						const OnFinished = new Signal<() => void>();
 						humanoid.MoveTo(position);
@@ -59,6 +60,7 @@ export class MonsterAi {
 					},
 				},
 			};
+
 			const tree = BehaviorTreeCreator.Create(
 				ReplicatedStorage.FindFirstChild("BTree")
 					?.FindFirstChild("Monster")

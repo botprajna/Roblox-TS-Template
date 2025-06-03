@@ -41,6 +41,7 @@ export type HunterBTreeObj = {
 type CanMove = { MoveTo(position: Vector3, timeout?: number): { OnFinished: Signal<() => void> } };
 type CanAttack = { Attack(): void };
 type UnitActionHandler = CanMove & CanAttack;
+
 @Service({})
 export class UnitAiMgr {
 	private _trees = new Map<Unit, [MonsterBTreeObj, BehaviorTree3<MonsterBTreeObj>]>();

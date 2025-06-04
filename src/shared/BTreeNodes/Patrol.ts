@@ -13,6 +13,7 @@ type FindPathData = {
 	state: "Moving" | "Reached" | "Error";
 	Destroy: () => void;
 };
+
 const findPathData = new Map<MonsterUnit, FindPathData>();
 export function start(obj: Obj) {
 	const blackboard = obj.Blackboard;

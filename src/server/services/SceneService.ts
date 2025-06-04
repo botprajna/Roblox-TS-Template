@@ -45,7 +45,7 @@ export class SceneService implements OnStart {
 			if (region?.IsA("Part")) {
 				this._spawnRegions.set(level, region);
 				region.Anchored = true;
-				region.CanCollide = false;
+				// region.CanCollide = false;
 			} else {
 				Log.Warn(`SceneService: 找不到生成区域 ${regionName}`);
 			}

@@ -57,7 +57,7 @@ export class Shop implements OnStart {
 		});
 	}
 
-	// 检测并附近的猎人
+	// 检测附近的猎人
 	private checkAndProcessHunters() {
 		if (t.none(this.constructionModel)) return;
 

@@ -6,7 +6,7 @@ import { MonsterBTreeBlackboard, MonsterBTreeObj } from "server/services/Monster
 import { MonsterUnit } from "shared/UnitTypes";
 
 type Blackboard = MonsterBTreeBlackboard;
-type Obj = { Blackboard: Blackboard } & MonsterBTreeObj;
+type Obj = { Blackboard: Blackboard; Level: number } & MonsterBTreeObj;
 type FindPathData = {
 	path: Path;
 	target: Vector3;
@@ -19,7 +19,7 @@ export function start(obj: Obj) {
 
 	if (findPathData.has(obj.Unit) === false) {
 		const model = obj.UnitModelMgr.GetModel(obj.Unit);
-		const target = obj.SceneService.GetMonsterSpawnLocation();
+		const target = obj.SceneService.GetMonsterSpawnLocation(obj.Level);
 
 		const path = new Path(model);
 		const pathConns: RBXScriptConnection[] = [];

@@ -45,7 +45,7 @@ export class BornMonster implements OnStart {
 			}
 
 			const instance = model.Clone();
-			const spawnLocation = this.sceneService.GetMonsterSpawnLocation();
+			const spawnLocation = this.sceneService.GetMonsterSpawnLocation(level);
 			instance.PivotTo(new CFrame(spawnLocation));
 			instance.Parent = Workspace;
 

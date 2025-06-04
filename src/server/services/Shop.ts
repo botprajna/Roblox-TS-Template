@@ -1,6 +1,6 @@
 import { Service, OnStart } from "@flamework/core";
 import { HunterManager } from "./HunterManager";
-import { Workspace } from "@rbxts/services";
+import { ReplicatedFirst, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { HunterUnit, UnitAttribute, UnitItem } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
 import { UnitModel } from "./UnitModel";
@@ -33,7 +33,9 @@ export class Shop implements OnStart {
 
 	// 初始化建筑物模型
 	private initializeConstruction() {
-		this.constructionModel = Workspace.FindFirstChild("ConstructionModel") as Model;
+		this.constructionModel = ReplicatedStorage.FindFirstChild("Assets")
+			?.FindFirstChild("ConstructionModel")
+			?.Clone() as Model;
 		if (this.constructionModel) {
 			// 设置建筑物初始位置和父级
 			this.constructionModel.PivotTo(new CFrame(new Vector3(0, 5, 5)));
@@ -55,7 +57,7 @@ export class Shop implements OnStart {
 		});
 	}
 
-	// 检测并处理附近的猎人
+	// 检测并附近的猎人
 	private checkAndProcessHunters() {
 		if (t.none(this.constructionModel)) return;
 

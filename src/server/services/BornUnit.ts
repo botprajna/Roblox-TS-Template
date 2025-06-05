@@ -1,5 +1,5 @@
 import { Service, OnStart, Dependency } from "@flamework/core";
-import { ReplicatedStorage, Workspace } from "@rbxts/services";
+import { HttpService, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { HunterConfig, HunterUnit, UnitAttribute } from "shared/UnitTypes";
 import { HunterManager } from "./HunterManager";
 import { UpgradeHunter } from "./UpgradeHunter";
@@ -38,7 +38,7 @@ export class BornUnit implements OnStart {
 			wait(this.SPAWN_INTERVAL);
 			this.currentLevel++;
 		}
-		print("猎人全部生成完毕！");
+		// print("猎人全部生成完毕！");
 	}
 
 	private getHunterModel(modelName: string): Model | undefined {
@@ -67,11 +67,11 @@ export class BornUnit implements OnStart {
 			const hunterUnit: HunterUnit = {
 				Type: "Hunter", // 固定值为 "Hunter"
 				HunterId: config.Id, // 使用配置中的Id
-				Guid: instance.GetAttribute("Guid") as string, // 获取模型的Guid属性
+				Guid: HttpService.GenerateGUID(), // 全局唯一标识符
 			};
 
 			// 创建猎人属性
-			const attributes: UnitAttribute = {
+			const hunterAttributes: UnitAttribute = {
 				Name: config.Name,
 				Health: config.Health,
 				HealthMax: config.Health,
@@ -85,10 +85,10 @@ export class BornUnit implements OnStart {
 
 			this.unitModel.SetModel(hunterUnit, instance);
 			// 存储猎人实例和属性
-			this.hunterManager.AddHunter(hunterUnit, attributes);
+			this.hunterManager.AddHunter(hunterUnit, hunterAttributes);
 
 			// 打印生成信息
-			this.printHunterInfo(attributes);
+			// this.printHunterInfo(hunterAttributes);
 
 			return { instance, hunterUnit }; // 返回生成的猎人实例和HunterUnit
 		} catch (e) {
@@ -97,15 +97,15 @@ export class BornUnit implements OnStart {
 	}
 
 	// 打印单个猎人信息
-	private printHunterInfo(attributes: UnitAttribute) {
+	private printHunterInfo(hunterAttributes: UnitAttribute) {
 		const info = `
 	        [猎人生成成功]
-			猎人名称: ${attributes.Name}
-	        等级: ${attributes.Level}
-	        生命值: ${attributes.Health}
-	        攻击力: ${attributes.Attack}
-			经验值上限: ${attributes.ExpMax}   
+			猎人名称: ${hunterAttributes.Name}
+	        等级: ${hunterAttributes.Level}
+	        生命值: ${hunterAttributes.Health}
+	        攻击力: ${hunterAttributes.Attack}
+			经验值上限: ${hunterAttributes.ExpMax}   
 	    `;
-		print(info);
+		// print(info);
 	}
 }

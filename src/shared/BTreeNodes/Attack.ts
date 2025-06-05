@@ -1,4 +1,5 @@
-import Path from "@rbxts/simplepath";
+import { FAIL, RUNNING } from "@rbxts/behavior-tree-5";
+import Path from "@rbxts/simplepath"; // 寻路相关功能
 import { $assert } from "rbxts-transform-debug";
 import { MonsterBTreeBlackboard, MonsterBTreeObj } from "server/services/MonsterAi";
 import { MonsterUnit } from "shared/UnitTypes";
@@ -36,7 +37,7 @@ export function start(obj: Obj) {
 		$assert(target, "Target not found");
 
 		const path = new Path(model);
-		const pathConns: RBXScriptConnection[] = [];
+		const pathConns: RBXScriptConnection[] = []; // 用于存储所有和寻路相关的事件连接
 		const reRunPath = () => {
 			if (attackData.get(obj.Unit)?.state === "Attacking") path.Run(target);
 		};
@@ -61,4 +62,13 @@ export function start(obj: Obj) {
 
 		path.Run(target);
 	}
+}
+
+export function run(obj: Obj, ...args: unknown[]) {
+	const dt = args[0] as number;
+	const blackboard = obj.Blackboard;
+
+	const data = attackData.get(obj.Unit);
+	$assert(data, "Attack data not found");
+	const selfPP = obj.UnitModelMgr.GetModel(obj.Unit).PrimaryPart as Part;
 }

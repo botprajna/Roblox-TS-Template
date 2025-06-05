@@ -1,19 +1,23 @@
 import { Service, OnStart } from "@flamework/core";
 import { UnitModel } from "./UnitModel";
-import { ReplicatedStorage, Workspace } from "@rbxts/services";
-import { MonsterConfig, MonsterUnit } from "shared/UnitTypes";
+import { HttpService, ReplicatedStorage, Workspace } from "@rbxts/services";
+import { MonsterConfig, MonsterUnit, Unit, UnitAttribute } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
 import { SceneService } from "./SceneService";
+import { UnitAiMgr } from "./MonsterAi";
+import { unit } from "@rbxts/rust-classes";
 
 @Service({})
 export class BornMonster implements OnStart {
 	private SPAWN_INTERVAL = 15; // 生成间隔
 	private currentLevel = 1; // 当前等级
 	private MAX_LEVEL = 5; // 最大等级
+	private Monsters = new Map<Unit, UnitAttribute>(); // 存储怪物及其属性
 
 	constructor(
 		private sceneService: SceneService,
 		private unitModel: UnitModel,
+		private unitAiMgr: UnitAiMgr,
 	) {}
 
 	onStart() {
@@ -45,21 +49,44 @@ export class BornMonster implements OnStart {
 			}
 
 			const instance = model.Clone();
-			const spawnLocation = this.sceneService.GetMonsterSpawnLocation();
+			const spawnLocation = this.sceneService.GetMonsterSpawnLocation(level);
 			instance.PivotTo(new CFrame(spawnLocation));
 			instance.Parent = Workspace;
 
-			const monsterUnit: MonsterUnit = {
+			const monsterUnit: Unit = {
 				Type: "Monster",
 				MonsterId: config.Id,
-				Guid: instance.GetAttribute("Guid") as string,
+				Guid: HttpService.GenerateGUID(),
 			};
 
-			this.unitModel.SetModel(monsterUnit, instance);
+			const monsterAttributes: UnitAttribute = {
+				Name: config.Name,
+				Level: config.Level,
+				Health: config.Health,
+				HealthMax: config.Health,
+				Attack: config.Attack,
+			};
 
-			print(`怪物 ${config.Name} 生成成功！位置: ${spawnLocation}`);
+			// this.Monsters.set(monsterUnit, monsterAttributes);
+			this.unitModel.SetModel(monsterUnit, instance);
+			// 调用怪物	AI
+			this.unitAiMgr.CreateAI(monsterUnit);
+
+			// 打印当前生成的怪物属性
+			this.printMonsterAttributes(monsterAttributes, spawnLocation);
 		} catch (e) {
 			warn(`怪物 L${level} 生成失败: ${e}`);
 		}
+	}
+	// 打印单个怪物属性
+	private printMonsterAttributes(monsterAttributes: UnitAttribute, spawnLocation: Vector3) {
+		const info = `
+			[怪物 ${monsterAttributes.Name} 生成成功！位置: ${spawnLocation}]
+			怪物名称: ${monsterAttributes.Name}
+			等级: ${monsterAttributes.Level}
+			生命值: ${monsterAttributes.Health}
+			攻击力: ${monsterAttributes.Attack}  
+		`;
+		print(info);
 	}
 }

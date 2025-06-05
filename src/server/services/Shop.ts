@@ -1,6 +1,6 @@
 import { Service, OnStart } from "@flamework/core";
 import { HunterManager } from "./HunterManager";
-import { Workspace } from "@rbxts/services";
+import { ReplicatedFirst, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { HunterUnit, UnitAttribute, UnitItem } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
 import { UnitModel } from "./UnitModel";
@@ -33,7 +33,10 @@ export class Shop implements OnStart {
 
 	// 初始化建筑物模型
 	private initializeConstruction() {
-		this.constructionModel = Workspace.FindFirstChild("ConstructionModel") as Model;
+		this.constructionModel = ReplicatedStorage.FindFirstChild("Assets")
+			?.FindFirstChild("Shop")
+			?.FindFirstChild("ShopModel")
+			?.Clone() as Model;
 		if (this.constructionModel) {
 			// 设置建筑物初始位置和父级
 			this.constructionModel.PivotTo(new CFrame(new Vector3(0, 5, 5)));
@@ -55,7 +58,7 @@ export class Shop implements OnStart {
 		});
 	}
 
-	// 检测并处理附近的猎人
+	// 检测附近的猎人
 	private checkAndProcessHunters() {
 		if (t.none(this.constructionModel)) return;
 
@@ -104,7 +107,7 @@ export class Shop implements OnStart {
 				const hunterGold = attributes.Gold ?? 0;
 
 				if (hunterGold < 5 || orangeCount < 1) {
-					print(`${attributes.Name} 资源不足，停止交换 (金币: ${hunterGold}, 橘子: ${orangeCount})`);
+					// print(`${attributes.Name} 资源不足，停止交换 (金币: ${hunterGold}, 橘子: ${orangeCount})`);
 					return;
 				}
 
@@ -139,7 +142,7 @@ export class Shop implements OnStart {
 		this.hunterManager.UpdateAttributes(hunterUnit, attributes);
 
 		// 打印交换信息
-		this.printExchangeDetails(hunterUnit, attributes);
+		// this.printExchangeDetails(hunterUnit, attributes);
 	}
 
 	// 从物品栏移除指定物品
@@ -172,8 +175,8 @@ export class Shop implements OnStart {
             总获得橘子: ${this.constructionData.oranges}
         `;
 
-		print(hunterInfo);
-		print(shopInfo);
+		// print(hunterInfo);
+		// print(shopInfo);
 	}
 
 	// 获取指定物品的数量

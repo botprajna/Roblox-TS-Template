@@ -6,7 +6,7 @@ import Log from "@rbxts/log";
 @Service({})
 export class SceneService implements OnStart {
 	private _ground!: Model;
-	private _spawnRegions: Part[] = [];
+	private _spawnRegions = new Map<number, Part>(); // 按等级存储生成区域
 
 	constructor() {}
 
@@ -15,45 +15,41 @@ export class SceneService implements OnStart {
 		this._initializeSpawnRegions();
 	}
 
-	GetMonsterSpawnLocation(): Vector3 {
-		const locations = this._ground?.GetChildren().filter((c) => c.Name === "MonsterSpawnRegion") ?? [];
-		// 随机选择一个生成位置
-		const randomIndex = math.random(0, locations.size() - 1);
-		const location = locations[randomIndex] as Part;
+	// 获取指定等级怪物的生成位置
+	GetMonsterSpawnLocation(level: number): Vector3 {
+		const region = this._spawnRegions.get(math.clamp(level, 1, 3));
 
-		if (t.none(location)) {
-			Log.Error("SceneService:GetMonsterSpawnLocation() - MonsterSpawnRegion not found");
+		if (!region) {
+			Log.Error(`SceneService:GetMonsterSpawnLocation() - SpawnRegion for level ${level} not found`);
+			return new Vector3(0, 0, 0);
 		}
 
-		const minX = location.Position.X - location.Size.X / 2;
-		const maxX = location.Position.X + location.Size.X / 2;
-		const minZ = location.Position.Z - location.Size.Z / 2;
-		const maxZ = location.Position.Z + location.Size.Z / 2;
+		// 计算区域内的随机位置
+		const minX = region.Position.X - region.Size.X / 2;
+		const maxX = region.Position.X + region.Size.X / 2;
+		const minZ = region.Position.Z - region.Size.Z / 2;
+		const maxZ = region.Position.Z + region.Size.Z / 2;
 
 		const x = math.random(minX, maxX);
 		const z = math.random(minZ, maxZ);
 
-		return new Vector3(x, location.Position.Y, z);
+		return new Vector3(x, region.Position.Y, z);
 	}
 
-	// 初始化三个固定生成区域
+	// 初始化生成区域
 	private _initializeSpawnRegions() {
-		const regionPositions = [
-			new Vector3(25, 0, 20), // 区域1坐标
-			new Vector3(-35, 0, 30), // 区域2坐标
-			new Vector3(-35, 0, -15), // 区域3坐标
-		];
+		for (let level = 1; level <= 3; level++) {
+			const regionName = `spawnlevel${level}`;
+			const region = this._ground.FindFirstChild(regionName);
 
-		regionPositions.forEach((pos) => {
-			const region = new Instance("Part");
-			region.Name = "MonsterSpawnRegion";
-			region.Size = new Vector3(5, 1, 5); // 区域大小
-			region.Position = pos;
-			region.Anchored = true;
-			region.Transparency = 1; // 调试
-			region.Parent = this._ground;
-			this._spawnRegions.push(region);
-		});
+			if (region?.IsA("Part")) {
+				this._spawnRegions.set(level, region);
+				region.Anchored = true;
+				// region.CanCollide = false;
+			} else {
+				Log.Warn(`SceneService: 找不到生成区域 ${regionName}`);
+			}
+		}
 	}
 
 	private LoadScene() {
@@ -61,7 +57,7 @@ export class SceneService implements OnStart {
 		if (t.none(ground)) {
 			Log.Error("SceneService:LoadScene() - Ground not found");
 		}
-		ground.Parent = game.Workspace;
+		ground.Parent = Workspace;
 		return ground;
 	}
 }

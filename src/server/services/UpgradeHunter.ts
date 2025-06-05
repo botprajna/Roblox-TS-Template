@@ -49,6 +49,6 @@ export class UpgradeHunter implements OnStart {
                     当前攻击力: ${attributes.Attack}
                     当前经验值上限: ${attributes.ExpMax}
                 `;
-		print(info);
+		// print(info);
 	}
 }

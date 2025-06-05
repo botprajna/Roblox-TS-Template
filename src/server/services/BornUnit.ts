@@ -38,7 +38,7 @@ export class BornUnit implements OnStart {
 			wait(this.SPAWN_INTERVAL);
 			this.currentLevel++;
 		}
-		print("猎人全部生成完毕！");
+		// print("猎人全部生成完毕！");
 	}
 
 	private getHunterModel(modelName: string): Model | undefined {
@@ -67,7 +67,7 @@ export class BornUnit implements OnStart {
 			const hunterUnit: HunterUnit = {
 				Type: "Hunter", // 固定值为 "Hunter"
 				HunterId: config.Id, // 使用配置中的Id
-				Guid: HttpService.GenerateGUID(false), // 全局唯一标识符
+				Guid: HttpService.GenerateGUID(), // 全局唯一标识符
 			};
 
 			// 创建猎人属性
@@ -88,7 +88,7 @@ export class BornUnit implements OnStart {
 			this.hunterManager.AddHunter(hunterUnit, hunterAttributes);
 
 			// 打印生成信息
-			this.printHunterInfo(hunterAttributes);
+			// this.printHunterInfo(hunterAttributes);
 
 			return { instance, hunterUnit }; // 返回生成的猎人实例和HunterUnit
 		} catch (e) {
@@ -106,6 +106,6 @@ export class BornUnit implements OnStart {
 	        攻击力: ${hunterAttributes.Attack}
 			经验值上限: ${hunterAttributes.ExpMax}   
 	    `;
-		print(info);
+		// print(info);
 	}
 }

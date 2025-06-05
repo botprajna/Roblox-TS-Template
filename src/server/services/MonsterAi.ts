@@ -1,12 +1,13 @@
-import { Service, OnStart } from "@flamework/core";
+import { OnTick, Service } from "@flamework/core";
 import { MonsterUnit, HunterUnit, Unit } from "shared/UnitTypes";
 import { UnitModel } from "./UnitModel";
 import { SceneService } from "./SceneService";
 import { BehaviorTree3, BehaviorTreeCreator } from "@rbxts/behavior-tree-5";
 import Signal from "@rbxts/signal";
-import { ReplicatedStorage } from "@rbxts/services";
+import { ReplicatedStorage, RunService } from "@rbxts/services";
 import { UnitSkill } from "./UnitSkill";
 import { $assert, $warn } from "rbxts-transform-debug";
+import { t } from "@rbxts/t";
 
 // 定义怪物行为树的黑板数据结构 关键的数据共享
 export type MonsterBTreeBlackboard = {
@@ -25,7 +26,7 @@ export type MonsterBTreeObj = {
 	readonly AttackRadius: number; //攻击范围
 	readonly LostTargetRadius: number; //目标丢失范围
 	Unit: MonsterUnit;
-	UnitActionHandler: UnitActionHandler;
+	UnitActionHandler: UnitActionHandler; // 行为接口（攻击、移动）
 	UnitModelMgr: UnitModel;
 	UnitSkillMgr: UnitSkill;
 	SceneService: SceneService;
@@ -46,7 +47,7 @@ type CanAttack = { Attack(): void };
 type UnitActionHandler = CanMove & CanAttack;
 
 @Service({})
-export class UnitAiMgr {
+export class UnitAiMgr implements OnTick {
 	// 存储怪物及其对应的行为树和运行时对象
 	private _trees = new Map<Unit, [MonsterBTreeObj, BehaviorTree3<MonsterBTreeObj>]>();
 	// 存储猎人及其对应的行为树和运行时对象
@@ -56,9 +57,9 @@ export class UnitAiMgr {
 		private _unitSkillMgr: UnitSkill,
 		private _sceneService: SceneService,
 	) {}
-	// 更新所有AI行为树
-	Update(dt: number) {
+	onTick(dt: number): void {
 		for (const [unit, [obj, tree]] of this._trees) {
+			print(1);
 			tree.run(obj, dt);
 		}
 		for (const [unit, [obj, tree]] of this._hunterTrees) {
@@ -68,12 +69,13 @@ export class UnitAiMgr {
 
 	CreateAI(unit: Unit) {
 		if (MonsterUnit(unit)) {
-			// 怪物AI
-			warn("CreateAI-Monster", unit);
-			const unitModel = this._unitModelMgr.GetModel(unit); //获取怪兽模型和属性
+			// $warn("CreateAI: 进入 MonsterUnit 分支", unit);
+			const unitModel = this._unitModelMgr.GetModel(unit);
+			// $warn("CreateAI: 获取到 unitModel", unitModel);
 			const humanoid = unitModel.FindFirstChildWhichIsA("Humanoid");
-			assert(unitModel, "UnitModel not found");
-			assert(humanoid, "Humanoid not found");
+			// $warn("CreateAI: 获取到 humanoid", humanoid);
+			$assert(unitModel, "UnitModel not found");
+			$assert(humanoid, "Humanoid not found");
 			const runObj: MonsterBTreeObj = {
 				Unit: unit as MonsterUnit,
 				CheckEnemyRadius: 20,
@@ -84,26 +86,34 @@ export class UnitAiMgr {
 				SceneService: this._sceneService,
 				UnitActionHandler: {
 					Attack() {},
-					// 移动
 					MoveTo(position, timeout) {
-						// 创建移动完成信号
+						//timeout 用于实现超时反馈
 						const OnFinished = new Signal<() => void>();
-						humanoid.MoveTo(position); // 将humanoid移动到指定位置
-						// 监听移动完成事件
-						humanoid.MoveToFinished.Connect(() => {
+						humanoid.MoveTo(position);
+						humanoid.MoveToFinished.Connect((reached) => {
+							// $warn("humanoid.MoveToFinished 触发，是否到达目标：", reached);
+							// $warn(
+							// 	"目标位置：",
+							// 	position,
+							// 	"当前实际位置：",
+							// 	humanoid.Parent && humanoid.Parent.IsA("Model")
+							// 		? (humanoid.Parent as Model).PrimaryPart?.Position
+							// 		: undefined,
+							// );
 							OnFinished.Fire();
 						});
 						return { OnFinished };
 					},
 				},
 			};
+			// $warn("CreateAI: runObj 创建完成", runObj);
 
 			// 从ReplicatedStorage中获取行为树
 			const tree = BehaviorTreeCreator.Create(
-				ReplicatedStorage.FindFirstChild("Assets")
-					?.FindFirstChild("Monsters")
-					?.FindFirstChild("MonsterAI") as Folder,
+				ReplicatedStorage.FindFirstChild("Assets")?.FindFirstChild("MonsterAi") as Folder,
 			);
+
+			// $warn("CreateAI: 行为树创建结果", tree);
 			this._trees.set(unit, [runObj, tree as BehaviorTree3<MonsterBTreeObj>]);
 			return;
 		}

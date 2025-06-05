@@ -1,17 +1,18 @@
 import { Service, OnStart } from "@flamework/core";
 import { UnitModel } from "./UnitModel";
 import { HttpService, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { MonsterConfig, MonsterUnit, UnitAttribute } from "shared/UnitTypes";
+import { MonsterConfig, MonsterUnit, Unit, UnitAttribute } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
 import { SceneService } from "./SceneService";
 import { UnitAiMgr } from "./MonsterAi";
+import { unit } from "@rbxts/rust-classes";
 
 @Service({})
 export class BornMonster implements OnStart {
 	private SPAWN_INTERVAL = 15; // 生成间隔
 	private currentLevel = 1; // 当前等级
 	private MAX_LEVEL = 5; // 最大等级
-	private Monsters = new Map<MonsterUnit, UnitAttribute>(); // 存储怪物及其属性
+	private Monsters = new Map<Unit, UnitAttribute>(); // 存储怪物及其属性
 
 	constructor(
 		private sceneService: SceneService,
@@ -52,10 +53,10 @@ export class BornMonster implements OnStart {
 			instance.PivotTo(new CFrame(spawnLocation));
 			instance.Parent = Workspace;
 
-			const monsterUnit: MonsterUnit = {
+			const monsterUnit: Unit = {
 				Type: "Monster",
 				MonsterId: config.Id,
-				Guid: HttpService.GenerateGUID(false),
+				Guid: HttpService.GenerateGUID(),
 			};
 
 			const monsterAttributes: UnitAttribute = {
@@ -66,10 +67,10 @@ export class BornMonster implements OnStart {
 				Attack: config.Attack,
 			};
 
-			this.Monsters.set(monsterUnit, monsterAttributes);
+			// this.Monsters.set(monsterUnit, monsterAttributes);
 			this.unitModel.SetModel(monsterUnit, instance);
-			// 调用怪兽	AI
-			// this.unitAiMgr.CreateAI(unit);
+			// 调用怪物	AI
+			this.unitAiMgr.CreateAI(monsterUnit);
 
 			// 打印当前生成的怪物属性
 			this.printMonsterAttributes(monsterAttributes, spawnLocation);

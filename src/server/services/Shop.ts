@@ -34,7 +34,8 @@ export class Shop implements OnStart {
 	// 初始化建筑物模型
 	private initializeConstruction() {
 		this.constructionModel = ReplicatedStorage.FindFirstChild("Assets")
-			?.FindFirstChild("ConstructionModel")
+			?.FindFirstChild("Shop")
+			?.FindFirstChild("ShopModel")
 			?.Clone() as Model;
 		if (this.constructionModel) {
 			// 设置建筑物初始位置和父级
@@ -106,7 +107,7 @@ export class Shop implements OnStart {
 				const hunterGold = attributes.Gold ?? 0;
 
 				if (hunterGold < 5 || orangeCount < 1) {
-					print(`${attributes.Name} 资源不足，停止交换 (金币: ${hunterGold}, 橘子: ${orangeCount})`);
+					// print(`${attributes.Name} 资源不足，停止交换 (金币: ${hunterGold}, 橘子: ${orangeCount})`);
 					return;
 				}
 
@@ -141,7 +142,7 @@ export class Shop implements OnStart {
 		this.hunterManager.UpdateAttributes(hunterUnit, attributes);
 
 		// 打印交换信息
-		this.printExchangeDetails(hunterUnit, attributes);
+		// this.printExchangeDetails(hunterUnit, attributes);
 	}
 
 	// 从物品栏移除指定物品
@@ -174,8 +175,8 @@ export class Shop implements OnStart {
             总获得橘子: ${this.constructionData.oranges}
         `;
 
-		print(hunterInfo);
-		print(shopInfo);
+		// print(hunterInfo);
+		// print(shopInfo);
 	}
 
 	// 获取指定物品的数量

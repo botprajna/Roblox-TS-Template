@@ -7,7 +7,7 @@ import { MonsterUnit } from "shared/UnitTypes";
 
 type Blackboard = MonsterBTreeBlackboard;
 // type Obj = { Blackboard: Blackboard; Level: number } & MonsterBTreeObj;
-type Obj = { Blackboard: Blackboard; Level: number } & MonsterBTreeObj;
+type Obj = { Blackboard: Blackboard } & MonsterBTreeObj;
 type FindPathData = {
 	path: Path;
 	target: Vector3;
@@ -17,29 +17,29 @@ type FindPathData = {
 
 const findPathData = new Map<MonsterUnit, FindPathData>();
 export function start(obj: Obj) {
-	// const blackboard = obj.Blackboard;
-	// if (findPathData.has(obj.Unit) === false) {
-	// 	const model = obj.UnitModelMgr.GetModel(obj.Unit);
-	// 	const target = obj.SceneService.GetMonsterSpawnLocation(obj.Level);
-	// 	const path = new Path(model);
-	// 	const pathConns: RBXScriptConnection[] = [];
-	// 	path.Visualize = true;
-	// 	pathConns.push(path.Blocked.Connect(() => path.Run(target)));
-	// 	pathConns.push(path.Reached.Connect(() => (data.state = "Reached")));
-	// 	pathConns.push(path.Error.Connect(() => (data.state = "Error")));
-	// 	const data: FindPathData = {
-	// 		path,
-	// 		target,
-	// 		state: "Moving",
-	// 		Destroy: () => {
-	// 			pathConns.forEach((conn) => conn.Disconnect());
-	// 			if (path.Status === "Active") path.Stop();
-	// 			data.path.Destroy();
-	// 		},
-	// 	};
-	// 	findPathData.set(obj.Unit, data);
-	// 	path.Run(target);
-	// }
+	const blackboard = obj.Blackboard;
+	if (findPathData.has(obj.Unit) === false) {
+		const model = obj.UnitModelMgr.GetModel(obj.Unit);
+		const target = obj.SceneService.GetNearbyHuntersPosition();
+		const path = new Path(model);
+		const pathConns: RBXScriptConnection[] = [];
+		path.Visualize = true;
+		pathConns.push(path.Blocked.Connect(() => path.Run(target)));
+		pathConns.push(path.Reached.Connect(() => (data.state = "Reached")));
+		pathConns.push(path.Error.Connect(() => (data.state = "Error")));
+		const data: FindPathData = {
+			path,
+			target,
+			state: "Moving",
+			Destroy: () => {
+				pathConns.forEach((conn) => conn.Disconnect());
+				if (path.Status === "Active") path.Stop();
+				data.path.Destroy();
+			},
+		};
+		findPathData.set(obj.Unit, data);
+		path.Run(target);
+	}
 }
 export function finish(obj: Obj, status: TREE_OUTCOME) {
 	// --[[

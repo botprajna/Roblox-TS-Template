@@ -2,17 +2,28 @@ import { Service, OnStart } from "@flamework/core";
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import Log from "@rbxts/log";
+import { HunterUnit } from "shared/UnitTypes";
 
 @Service({})
 export class SceneService implements OnStart {
 	private _ground!: Model;
 	private _spawnRegions = new Map<number, Part>(); // 按等级存储生成区域
 
-	constructor() {}
+	constructor(private _HunterUnit: HunterUnit[]) {}
 
 	onStart() {
 		this._ground = this.LoadScene();
 		this._initializeSpawnRegions();
+	}
+
+	GetNearbyHuntersPosition(): Vector3[] {
+		const positions: Vector3[] = [];
+		const hunters = this._ground
+			.GetChildren()
+			.filter(
+				(instance): instance is Model => t.Instance(instance, "Model") && instance.Name.lower() === "hunter",
+			);
+		return positions;
 	}
 
 	// 获取指定等级怪物的生成位置

@@ -8,7 +8,7 @@ import { HunterManager } from "./HunterManager";
 @Service({})
 export class Shop implements OnStart {
 	// 建筑物数据存储
-	private constructionData = {
+	private shopData = {
 		exchangeCount: 0, // 总交换次数
 		gold: 0, // 建筑物获得的总金币数
 		oranges: 0, // 建筑物获得的总橘子数
@@ -19,9 +19,9 @@ export class Shop implements OnStart {
 	// 	["oranges", 0]
 	// ]);
 
-	private readonly DETECTION_RANGE = 6; // 检测范围
-	private readonly EXCHANGE_INTERVAL = 2; // 交换间隔时间
-	private readonly CHECK_INTERVAL = 1; // 缩短检测间隔为1秒
+	private DETECTION_RANGE = 6; // 检测范围
+	private EXCHANGE_INTERVAL = 2; // 交换间隔时间
+	private CHECK_INTERVAL = 1; // 缩短检测间隔为1秒
 
 	private constructionModel?: Model; // 建筑物模型
 	private activeExchanges = new Map<HunterUnit, boolean>(); // 正在交换的猎人标记
@@ -115,9 +115,9 @@ export class Shop implements OnStart {
 				const hasEnoughOranges = this.getItemCount(attributes.ItemBag, "橘子") >= 1;
 
 				if (!hasEnoughGold || !hasEnoughOranges) {
-					print(
-						`${attributes.Name} 资源不足，停止交换 (金币: ${attributes.Gold}, 橘子: ${this.getItemCount(attributes.ItemBag, "橘子")})`,
-					);
+					// print(
+					// 	`${attributes.Name} 资源不足，停止交换 (金币: ${attributes.Gold}, 橘子: ${this.getItemCount(attributes.ItemBag, "橘子")})`,
+					// );
 					break;
 				}
 
@@ -140,9 +140,9 @@ export class Shop implements OnStart {
 		this.removeItemFromBag(attributes.ItemBag ?? [], "橘子", 1);
 
 		// 增加商店资源
-		this.constructionData.exchangeCount++;
-		this.constructionData.gold += 5;
-		this.constructionData.oranges += 1;
+		this.shopData.exchangeCount++;
+		this.shopData.gold += 5;
+		this.shopData.oranges += 1;
 
 		// 更新猎人属性
 		this.hunterManager.UpdateAttributes(hunter, attributes);
@@ -181,9 +181,9 @@ export class Shop implements OnStart {
 
 		const shopInfo = `
             [商店交换信息]
-            总交换次数: ${this.constructionData.exchangeCount}
-            总获得金币: ${this.constructionData.gold}
-            总获得橘子: ${this.constructionData.oranges}
+            总交换次数: ${this.shopData.exchangeCount}
+            总获得金币: ${this.shopData.gold}
+            总获得橘子: ${this.shopData.oranges}
         `;
 
 		print(hunterInfo);

@@ -52,6 +52,10 @@ export class MonsterConfig {
 
 		return config;
 	}
+	// 获取所有怪物 Id 用于所有怪物生成
+	static getAllIds(): number[] {
+		return monsterConfigs.map((config) => config.Id);
+	}
 }
 
 const HunterConfigs = [
@@ -68,5 +72,10 @@ export class HunterConfig {
 		assert(config, `HunterConfig:GetHunterConfig() - Invalid Hunter id: ${id}`);
 
 		return config;
+	}
+
+	// 获取所有猎人 Id 用于所有猎人生成
+	static getAllIds(): number[] {
+		return HunterConfigs.map((config) => config.Id);
 	}
 }

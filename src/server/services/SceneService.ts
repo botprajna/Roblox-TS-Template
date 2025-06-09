@@ -2,15 +2,21 @@ import { Service, OnStart } from "@flamework/core";
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { t } from "@rbxts/t";
 import Log from "@rbxts/log";
+import { HunterUnit } from "shared/UnitTypes";
 
 @Service({})
 export class SceneService implements OnStart {
 	private _ground!: Model;
 
-	constructor() {}
+	constructor(private _HunterUnit: HunterUnit[]) {}
 
 	onStart() {
 		this._ground = this.LoadScene();
+	}
+
+	GetNearbyHuntersPosition(): Vector3 {
+		const location = new Vector3(1, 3, 1);
+		return location; //返回坐标
 	}
 
 	// 获取指定等级怪物的生成位置

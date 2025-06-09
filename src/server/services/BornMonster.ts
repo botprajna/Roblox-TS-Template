@@ -54,6 +54,11 @@ export class BornMonster implements OnStart {
 		}
 
 		const instance = model.Clone();
+		// 克隆模型后，设置 PrimaryPart
+		const rootPart = instance.FindFirstChild("HumanoidRootPart") as BasePart | undefined;
+		if (rootPart) {
+			instance.PrimaryPart = rootPart;
+		}
 		const spawnLocation = this.sceneService.GetMonsterSpawnLocation();
 		instance.PivotTo(new CFrame(spawnLocation));
 		instance.Parent = Workspace;
@@ -74,8 +79,8 @@ export class BornMonster implements OnStart {
 
 		this.Monsters.set(monsterUnit, monsterAttributes);
 		this.unitModel.SetModel(monsterUnit, instance);
-		// // 调用怪物	AI
-		// this.unitAiMgr.CreateAI(monsterUnit);
+		// 调用怪物	AI
+		this.unitAiMgr.CreateAI(monsterUnit);
 
 		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
 		if (t.none(humanoid)) {
@@ -86,32 +91,47 @@ export class BornMonster implements OnStart {
 				if (humanoid.Health <= 0) {
 					// 怪物死亡，重新生成
 					instance.Destroy();
-					// this.spawnDropItem();
+
+					// 创建掉落物品
+					const dropPart = new Instance("Part");
+					dropPart.Parent = Workspace;
+					dropPart.Position = spawnLocation;
+					dropPart.Anchored = true;
+					dropPart.Transparency = 1;
+					const dropBill = new Instance("BillboardGui");
+					dropBill.Size = new UDim2(3, 0, 1, 0);
+					dropBill.StudsOffset = new Vector3(0, 3, 0);
+					dropBill.AlwaysOnTop = true;
+					dropBill.MaxDistance = 100;
+					dropBill.Parent = dropPart;
+
+					const frame = new Instance("Frame");
+					frame.Size = new UDim2(1, 0, 1, 0);
+					frame.BackgroundColor3 = Color3.fromRGB(255, 170, 0);
+					frame.BackgroundTransparency = 0.3;
+					frame.Parent = dropBill;
+
+					const stroke = new Instance("UIStroke");
+					stroke.Thickness = 4;
+					stroke.Color = Color3.fromRGB(255, 255, 0);
+					stroke.Parent = frame;
+
 					this.spawnMonster(monsterId);
 					print(`重新生成怪物 ${monsterAttributes.Name}`);
 				}
 			});
 
-			// 	// 测试：3秒后让怪物死亡
-			// 	if (monsterId === 2) {
-			// 		task.delay(3, () => {
-			// 			humanoid.Health = 0;
-			// 			print("该怪物已死亡");
-			// 		});
-			// 	}
+			// 测试：3秒后让怪物死亡
+			if (monsterId === 1) {
+				task.delay(3, () => {
+					humanoid.Health = 0;
+					print("该怪物已死亡");
+				});
+			}
 		}
 
 		// 打印当前生成的怪物属性
 		this.printMonsterAttributes(monsterAttributes, spawnLocation);
-	}
-
-	private spawnDropItem(spawnLocation: Vector3) {
-		const orange = Workspace.FindFirstChild("Shop")?.FindFirstChild("Orange") as Part;
-		orange.Anchored = false;
-		orange.CanCollide = true;
-		orange.Material = Enum.Material.Neon; // 发光材质
-		orange.Position = spawnLocation;
-		orange.CustomPhysicalProperties = new PhysicalProperties(0.5, 0.4, 0.7, 0.3, 0.5);
 	}
 
 	// 打印单个怪物属性

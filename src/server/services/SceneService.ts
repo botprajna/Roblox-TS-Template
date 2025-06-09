@@ -16,14 +16,9 @@ export class SceneService implements OnStart {
 		this._initializeSpawnRegions();
 	}
 
-	GetNearbyHuntersPosition(): Vector3[] {
-		const positions: Vector3[] = [];
-		const hunters = this._ground
-			.GetChildren()
-			.filter(
-				(instance): instance is Model => t.Instance(instance, "Model") && instance.Name.lower() === "hunter",
-			);
-		return positions;
+	GetNearbyHuntersPosition(): Vector3 {
+		const location = new Vector3(1, 3, 1);
+		return location; //返回坐标
 	}
 
 	// 获取指定等级怪物的生成位置

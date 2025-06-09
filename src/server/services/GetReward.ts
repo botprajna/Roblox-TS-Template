@@ -1,7 +1,7 @@
-import { OnStart, Service } from "@flamework/core";
+import { OnStart, Service, Dependency } from "@flamework/core";
 import { HunterUnit, UnitAttribute, UnitItem } from "shared/UnitTypes";
-import { HunterManager } from "./HunterManager";
 import { t } from "@rbxts/t";
+import { HunterManager } from "./HunterManager";
 
 @Service({})
 export class GetReward implements OnStart {
@@ -9,6 +9,7 @@ export class GetReward implements OnStart {
 	private REWARD_TIMES = 4; //奖励次数
 
 	constructor(private hunterManager: HunterManager) {}
+
 	onStart() {}
 
 	// 将物品添加到物品栏
@@ -28,7 +29,7 @@ export class GetReward implements OnStart {
 	}
 
 	// 获得奖励循环
-	public StartAutoReward(hunter: HunterUnit) {
+	StartAutoReward(hunter: HunterUnit) {
 		for (let i = 0; i < this.REWARD_TIMES; i++) {
 			wait(this.REWARD_INTERVAL);
 			this.addRewards(hunter, i + 1);
@@ -57,11 +58,11 @@ export class GetReward implements OnStart {
 	// 打印猎人奖励信息
 	private printRewardInfo(attributes: UnitAttribute, rewardCount: number) {
 		const info = `
-						[猎人获取奖励]
-						猎人名称：${attributes.Name}
-						获取次数：${rewardCount}
-						当前金币：${attributes.Gold}
-						物品栏：${this.formatItemBag(attributes.ItemBag)}
+					[猎人获取奖励]
+					猎人名称：${attributes.Name}
+					获取次数：${rewardCount}
+					当前金币：${attributes.Gold}
+					物品栏：${this.formatItemBag(attributes.ItemBag)}
 			`;
 		// print(info);
 	}

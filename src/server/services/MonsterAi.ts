@@ -59,7 +59,6 @@ export class UnitAiMgr implements OnTick {
 	) {}
 	onTick(dt: number): void {
 		for (const [unit, [obj, tree]] of this._trees) {
-			print(1);
 			tree.run(obj, dt);
 		}
 		for (const [unit, [obj, tree]] of this._hunterTrees) {

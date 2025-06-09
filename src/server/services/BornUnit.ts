@@ -1,24 +1,24 @@
-import { Service, OnStart, Dependency } from "@flamework/core";
+import { Service, OnStart } from "@flamework/core";
 import { HttpService, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { HunterConfig, HunterUnit, UnitAttribute } from "shared/UnitTypes";
-import { HunterManager } from "./HunterManager";
-import { UpgradeHunter } from "./UpgradeHunter";
-import { GetReward } from "./GetReward";
+import { HunterConfig, HunterUnit, Unit, UnitAttribute } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
 import { UnitModel } from "./UnitModel";
+import { UpgradeHunter } from "./UpgradeHunter";
+import { GetReward } from "./GetReward";
+import { HunterManager } from "./HunterManager";
+import { Shop } from "./Shop";
 
 @Service({})
 export class BornUnit implements OnStart {
 	private SPAWN_INTERVAL = 10; // 生成间隔
 	private _spawnLocation = new Vector3(0, 5, 0); // 生成位置
-	private currentLevel = 1; // 当前等级
-	private MAX_LEVEL = 5; // 最大等级
 
 	constructor(
-		private hunterManager: HunterManager,
-		private upgradeService: UpgradeHunter,
-		private rewardService: GetReward,
 		private unitModel: UnitModel,
+		private upgradeHunter: UpgradeHunter,
+		private getReward: GetReward,
+		private shop: Shop,
+		private hunterManager: HunterManager,
 	) {}
 
 	onStart() {
@@ -27,18 +27,15 @@ export class BornUnit implements OnStart {
 
 	// 猎人生成循环
 	private startSpawning() {
-		while (this.currentLevel <= this.MAX_LEVEL) {
-			// 生成猎人并获取实例和数据
-			const { instance, hunterUnit } = this.spawnHunter(this.currentLevel) ?? {};
-			if (instance && hunterUnit) {
-				// 启动升级和奖励循环
-				spawn(() => this.upgradeService.StartAutoUpgrade(hunterUnit));
-				spawn(() => this.rewardService.StartAutoReward(hunterUnit));
+		// 获取所有猎人 Id
+		const hunterIds = HunterConfig.getAllIds();
+		const spawnLoop = () => {
+			for (const id of hunterIds) {
+				this.spawnHunter(id);
+				task.wait(this.SPAWN_INTERVAL);
 			}
-			wait(this.SPAWN_INTERVAL);
-			this.currentLevel++;
-		}
-		// print("猎人全部生成完毕！");
+		};
+		task.spawn(spawnLoop);
 	}
 
 	private getHunterModel(modelName: string): Model | undefined {
@@ -47,53 +44,76 @@ export class BornUnit implements OnStart {
 		return model?.IsA("Model") ? model : undefined;
 	}
 
-	private spawnHunter(level: number): { instance: Model; hunterUnit: HunterUnit } | undefined {
-		// 获取猎人配置
-		const config = HunterConfig.GetHunterConfig(level);
-
-		try {
-			// 获取模型路径
-			const model = this.getHunterModel(config.Name);
-			if (t.none(model)) {
-				warn(`找不到猎人模型: ${config.Name}`);
-				return;
-			}
-
-			// 克隆模型并放置到生成位置
-			const instance = model.Clone();
-			instance.PivotTo(new CFrame(this._spawnLocation));
-			instance.Parent = Workspace;
-
-			const hunterUnit: HunterUnit = {
-				Type: "Hunter", // 固定值为 "Hunter"
-				HunterId: config.Id, // 使用配置中的Id
-				Guid: HttpService.GenerateGUID(), // 全局唯一标识符
-			};
-
-			// 创建猎人属性
-			const hunterAttributes: UnitAttribute = {
-				Name: config.Name,
-				Health: config.Health,
-				HealthMax: config.Health,
-				Attack: config.Attack,
-				Level: config.Level,
-				Exp: 0,
-				ExpMax: config.Exp,
-				Gold: 0,
-				ItemBag: [],
-			};
-
-			this.unitModel.SetModel(hunterUnit, instance);
-			// 存储猎人实例和属性
-			this.hunterManager.AddHunter(hunterUnit, hunterAttributes);
-
-			// 打印生成信息
-			// this.printHunterInfo(hunterAttributes);
-
-			return { instance, hunterUnit }; // 返回生成的猎人实例和HunterUnit
-		} catch (e) {
-			warn(`猎人 L${level} 生成失败: ${e}`);
+	private spawnHunter(hunterId: number): { instance: Model; hunterUnit: HunterUnit } | undefined {
+		const config = HunterConfig.GetHunterConfig(hunterId);
+		if (t.none(config)) {
+			warn("猎人配置未找到！");
+			return;
 		}
+
+		const model = this.getHunterModel(config.Name);
+		if (t.none(model)) {
+			warn(`找不到猎人模型: ${config.Name}`);
+			return;
+		}
+
+		// 克隆模型并放置到生成位置
+		const instance = model.Clone();
+		instance.PivotTo(new CFrame(this._spawnLocation));
+		instance.Parent = Workspace;
+
+		const hunterUnit: HunterUnit = {
+			Type: "Hunter", // 固定值为 "Hunter"
+			HunterId: config.Id, // 使用配置中的Id
+			Guid: HttpService.GenerateGUID(), // 全局唯一标识符
+		};
+
+		// 创建猎人属性
+		const hunterAttributes: UnitAttribute = {
+			Name: config.Name,
+			Health: config.Health,
+			HealthMax: config.Health,
+			Attack: config.Attack,
+			Level: config.Level,
+			Exp: 0,
+			ExpMax: config.Exp,
+			Gold: 0,
+			ItemBag: [],
+		};
+
+		// 存储猎人实例和属性
+		this.hunterManager.AddHunter(hunterUnit, hunterAttributes);
+		this.unitModel.SetModel(hunterUnit, instance);
+
+		// 监听Health属性
+		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
+		if (t.none(humanoid)) {
+			warn(`怪物 ${config.Name} 未找到 Humanoid`);
+		} else {
+			humanoid.HealthChanged.Connect(() => {
+				if (humanoid.Health <= 0) {
+					// 猎人死亡，销毁模型
+					instance.Destroy();
+					this.spawnHunter(hunterId);
+					print(` 重新生成猎人 ${hunterAttributes.Name}`);
+				}
+			});
+		}
+
+		// 打印生成信息
+		this.printHunterInfo(hunterAttributes);
+		this.upgradeHunter.StartAutoUpgrade(hunterUnit);
+		this.getReward.StartAutoReward(hunterUnit);
+
+		// // 测试：3秒后让猎人1死亡
+		// if (hunterId === 1) {
+		// 	task.delay(3, () => {
+		// 		health.Value = 0;
+		// 		print("该猎人已死亡");
+		// 	});
+		// }
+
+		return { instance, hunterUnit }; // 返回生成的猎人实例和HunterUnit
 	}
 
 	// 打印单个猎人信息
@@ -106,6 +126,6 @@ export class BornUnit implements OnStart {
 	        攻击力: ${hunterAttributes.Attack}
 			经验值上限: ${hunterAttributes.ExpMax}   
 	    `;
-		// print(info);
+		print(info);
 	}
 }

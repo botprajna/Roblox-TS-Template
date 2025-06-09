@@ -7,13 +7,11 @@ import { HunterUnit } from "shared/UnitTypes";
 @Service({})
 export class SceneService implements OnStart {
 	private _ground!: Model;
-	private _spawnRegions = new Map<number, Part>(); // 按等级存储生成区域
 
 	constructor(private _HunterUnit: HunterUnit[]) {}
 
 	onStart() {
 		this._ground = this.LoadScene();
-		this._initializeSpawnRegions();
 	}
 
 	GetNearbyHuntersPosition(): Vector3 {
@@ -22,40 +20,30 @@ export class SceneService implements OnStart {
 	}
 
 	// 获取指定等级怪物的生成位置
-	GetMonsterSpawnLocation(level: number): Vector3 {
-		const region = this._spawnRegions.get(math.clamp(level, 1, 3));
+	GetMonsterSpawnLocation(): Vector3 {
+		//获取_ground中的“spawnlevel1、2、3”的子对象并组成数组
+		const spawnNames = ["spawnlevel1", "spawnlevel2", "spawnlevel3"];
+		//获得怪物出生点
+		const locations = this._ground?.GetChildren().filter((c) => spawnNames.includes(c.Name));
+		// 随机选择一个生成位置
+		const randomIndex = math.random(0, locations.size() - 1);
+		const location = locations[randomIndex] as Part;
 
-		if (!region) {
-			Log.Error(`SceneService:GetMonsterSpawnLocation() - SpawnRegion for level ${level} not found`);
-			return new Vector3(0, 0, 0);
+		if (t.none(location)) {
+			Log.Error("SceneService:GetMonsterSpawnLocation() - MonsterSpawnRegion not found");
+			return new Vector3(1, 3, 1);
 		}
 
 		// 计算区域内的随机位置
-		const minX = region.Position.X - region.Size.X / 2;
-		const maxX = region.Position.X + region.Size.X / 2;
-		const minZ = region.Position.Z - region.Size.Z / 2;
-		const maxZ = region.Position.Z + region.Size.Z / 2;
+		const minX = location.Position.X - location.Size.X / 2;
+		const maxX = location.Position.X + location.Size.X / 2;
+		const minZ = location.Position.Z - location.Size.Z / 2;
+		const maxZ = location.Position.Z + location.Size.Z / 2;
 
 		const x = math.random(minX, maxX);
 		const z = math.random(minZ, maxZ);
 
-		return new Vector3(x, region.Position.Y, z);
-	}
-
-	// 初始化生成区域
-	private _initializeSpawnRegions() {
-		for (let level = 1; level <= 3; level++) {
-			const regionName = `spawnlevel${level}`;
-			const region = this._ground.FindFirstChild(regionName);
-
-			if (region?.IsA("Part")) {
-				this._spawnRegions.set(level, region);
-				region.Anchored = true;
-				// region.CanCollide = false;
-			} else {
-				Log.Warn(`SceneService: 找不到生成区域 ${regionName}`);
-			}
-		}
+		return new Vector3(x, location.Position.Y, z);
 	}
 
 	private LoadScene() {

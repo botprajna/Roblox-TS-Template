@@ -77,21 +77,43 @@ export class BornMonster implements OnStart {
 		// // 调用怪物	AI
 		// this.unitAiMgr.CreateAI(monsterUnit);
 
-		// 监听Health属性
-		const healthValue = instance.FindFirstChild("Health") as NumberValue;
-		if (healthValue) {
-			healthValue.Changed.Connect((newValue) => {
-				if (newValue <= 0) {
+		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
+		if (t.none(humanoid)) {
+			warn(`怪物 ${config.Name} 未找到 Humanoid`);
+		} else {
+			// 监听生命值变化
+			humanoid.HealthChanged.Connect(() => {
+				if (humanoid.Health <= 0) {
 					// 怪物死亡，重新生成
 					instance.Destroy();
+					// this.spawnDropItem();
 					this.spawnMonster(monsterId);
+					print(`重新生成怪物 ${monsterAttributes.Name}`);
 				}
 			});
+
+			// 	// 测试：3秒后让怪物死亡
+			// 	if (monsterId === 2) {
+			// 		task.delay(3, () => {
+			// 			humanoid.Health = 0;
+			// 			print("该怪物已死亡");
+			// 		});
+			// 	}
 		}
 
 		// 打印当前生成的怪物属性
 		this.printMonsterAttributes(monsterAttributes, spawnLocation);
 	}
+
+	private spawnDropItem(spawnLocation: Vector3) {
+		const orange = Workspace.FindFirstChild("Shop")?.FindFirstChild("Orange") as Part;
+		orange.Anchored = false;
+		orange.CanCollide = true;
+		orange.Material = Enum.Material.Neon; // 发光材质
+		orange.Position = spawnLocation;
+		orange.CustomPhysicalProperties = new PhysicalProperties(0.5, 0.4, 0.7, 0.3, 0.5);
+	}
+
 	// 打印单个怪物属性
 	private printMonsterAttributes(monsterAttributes: UnitAttribute, spawnLocation: Vector3) {
 		const info = `
@@ -101,6 +123,6 @@ export class BornMonster implements OnStart {
 			生命值: ${monsterAttributes.Health}
 			攻击力: ${monsterAttributes.Attack}  
 		`;
-		// print(info);
+		print(info);
 	}
 }

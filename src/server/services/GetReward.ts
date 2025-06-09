@@ -64,7 +64,7 @@ export class GetReward implements OnStart {
 					当前金币：${attributes.Gold}
 					物品栏：${this.formatItemBag(attributes.ItemBag)}
 			`;
-		print(info);
+		// print(info);
 	}
 
 	// 格式化物品栏信息

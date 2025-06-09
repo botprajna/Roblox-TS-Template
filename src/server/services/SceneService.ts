@@ -6,7 +6,6 @@ import Log from "@rbxts/log";
 @Service({})
 export class SceneService implements OnStart {
 	private _ground!: Model;
-	// private _spawnRegions = new Map<number, Part>(); // 按等级存储生成区域
 
 	constructor() {}
 

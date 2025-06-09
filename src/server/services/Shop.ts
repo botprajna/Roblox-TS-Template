@@ -23,7 +23,7 @@ export class Shop implements OnStart {
 	private EXCHANGE_INTERVAL = 2; // 交换间隔时间
 	private CHECK_INTERVAL = 1; // 缩短检测间隔为1秒
 
-	private constructionModel?: Model; // 建筑物模型
+	private shopModel?: Model; // 建筑物模型
 	private activeExchanges = new Map<HunterUnit, boolean>(); // 正在交换的猎人标记
 
 	constructor(
@@ -43,9 +43,9 @@ export class Shop implements OnStart {
 			?.FindFirstChild("ShopModel");
 
 		if (shopModel?.IsA("Model")) {
-			this.constructionModel = shopModel.Clone();
-			this.constructionModel.PivotTo(new CFrame(new Vector3(0, 5, 5)));
-			this.constructionModel.Parent = Workspace;
+			this.shopModel = shopModel.Clone();
+			this.shopModel.PivotTo(new CFrame(new Vector3(0, 5, 5)));
+			this.shopModel.Parent = Workspace;
 			// print("商店模型初始化成功");
 		} else {
 			warn("商店模型初始化失败 - 找不到模型");
@@ -76,12 +76,12 @@ export class Shop implements OnStart {
 
 	// 检测附近的猎人
 	private checkNearbyHunters() {
-		if (t.none(this.constructionModel)) {
+		if (t.none(this.shopModel)) {
 			warn("找不到商店模型");
 			return;
 		}
 
-		const constructionPos = this.constructionModel.GetPivot().Position;
+		const constructionPos = this.shopModel.GetPivot().Position;
 		const allHunters = this.getAllHunters();
 
 		for (const hunter of allHunters) {
@@ -186,7 +186,7 @@ export class Shop implements OnStart {
             总获得橘子: ${this.shopData.oranges}
         `;
 
-		print(hunterInfo);
-		print(shopInfo);
+		// print(hunterInfo);
+		// print(shopInfo);
 	}
 }

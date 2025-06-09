@@ -86,13 +86,16 @@ export class BornUnit implements OnStart {
 		this.unitModel.SetModel(hunterUnit, instance);
 
 		// 监听Health属性
-		const healthValue = instance.FindFirstChild("Health") as NumberValue;
-		if (healthValue) {
-			healthValue.Changed.Connect((newValue) => {
-				if (newValue <= 0) {
-					// 猎人死亡，重新生成
+		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
+		if (t.none(humanoid)) {
+			warn(`怪物 ${config.Name} 未找到 Humanoid`);
+		} else {
+			humanoid.HealthChanged.Connect(() => {
+				if (humanoid.Health <= 0) {
+					// 猎人死亡，销毁模型
 					instance.Destroy();
 					this.spawnHunter(hunterId);
+					print(` 重新生成猎人 ${hunterAttributes.Name}`);
 				}
 			});
 		}
@@ -101,7 +104,14 @@ export class BornUnit implements OnStart {
 		this.printHunterInfo(hunterAttributes);
 		this.upgradeHunter.StartAutoUpgrade(hunterUnit);
 		this.getReward.StartAutoReward(hunterUnit);
-		// this.shop.StartDetectionLoop();
+
+		// // 测试：3秒后让猎人1死亡
+		// if (hunterId === 1) {
+		// 	task.delay(3, () => {
+		// 		health.Value = 0;
+		// 		print("该猎人已死亡");
+		// 	});
+		// }
 
 		return { instance, hunterUnit }; // 返回生成的猎人实例和HunterUnit
 	}

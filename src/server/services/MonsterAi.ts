@@ -89,16 +89,7 @@ export class UnitAiMgr implements OnTick {
 						//timeout 用于实现超时反馈
 						const OnFinished = new Signal<() => void>();
 						humanoid.MoveTo(position);
-						humanoid.MoveToFinished.Connect((reached) => {
-							// $warn("humanoid.MoveToFinished 触发，是否到达目标：", reached);
-							// $warn(
-							// 	"目标位置：",
-							// 	position,
-							// 	"当前实际位置：",
-							// 	humanoid.Parent && humanoid.Parent.IsA("Model")
-							// 		? (humanoid.Parent as Model).PrimaryPart?.Position
-							// 		: undefined,
-							// );
+						humanoid.MoveToFinished.Connect(() => {
 							OnFinished.Fire();
 						});
 						return { OnFinished };

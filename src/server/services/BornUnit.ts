@@ -6,7 +6,6 @@ import { UnitModel } from "./UnitModel";
 import { UpgradeHunter } from "./UpgradeHunter";
 import { GetReward } from "./GetReward";
 import { HunterManager } from "./HunterManager";
-import { Shop } from "./Shop";
 
 @Service({})
 export class BornUnit implements OnStart {
@@ -17,7 +16,6 @@ export class BornUnit implements OnStart {
 		private unitModel: UnitModel,
 		private upgradeHunter: UpgradeHunter,
 		private getReward: GetReward,
-		private shop: Shop,
 		private hunterManager: HunterManager,
 	) {}
 
@@ -59,6 +57,11 @@ export class BornUnit implements OnStart {
 
 		// 克隆模型并放置到生成位置
 		const instance = model.Clone();
+		// // 克隆模型后，设置 PrimaryPart
+		// const rootPart = instance.FindFirstChild("HumanoidRootPart") as BasePart | undefined;
+		// if (rootPart) {
+		// 	instance.PrimaryPart = rootPart;
+		// }
 		instance.PivotTo(new CFrame(this._spawnLocation));
 		instance.Parent = Workspace;
 

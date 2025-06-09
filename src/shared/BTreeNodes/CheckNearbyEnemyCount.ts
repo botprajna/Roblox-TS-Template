@@ -13,7 +13,6 @@ export function start(obj: Obj) {
 
 	obj.Blackboard.curNearbyEnemies = obj.Blackboard.curNearbyEnemies || [];
 	obj.Blackboard.curNearbyEnemies.clear();
-	print(1);
 }
 
 export function finish(obj: Obj, status: TREE_OUTCOME) {
@@ -33,7 +32,6 @@ export function run(obj: Obj, ...args: unknown[]) {
 	//    FAIL    - The task did fail
 	//    RUNNING - The task is still running and will be called directly from parent node
 	// --]]
-	print(1);
 	const unit = obj.Unit;
 	const unitModelMgr = obj.UnitModelMgr;
 	const CheckEnemyRadius = obj.CheckEnemyRadius;

@@ -2,7 +2,8 @@ import { SUCCESS, TREE_OUTCOME } from "@rbxts/behavior-tree-5";
 import { $print } from "rbxts-transform-debug";
 import { MonsterBTreeBlackboard, MonsterBTreeObj } from "server/services/MonsterAi";
 
-type Obj = { Blackboard: MonsterBTreeBlackboard } & MonsterBTreeObj;
+type Blackboard = MonsterBTreeBlackboard;
+type Obj = { Blackboard: Blackboard } & MonsterBTreeObj;
 
 export function start(obj: Obj) {
 	// --[[
@@ -11,7 +12,7 @@ export function start(obj: Obj) {
 	//  Beware: if task is resumed after calling running(), start is not called.
 	// --]]
 
-	obj.Blackboard.curNearbyEnemies = obj.Blackboard.curNearbyEnemies || [];
+	obj.Blackboard.curNearbyEnemies = obj.Blackboard.curNearbyEnemies ?? [];
 	obj.Blackboard.curNearbyEnemies.clear();
 }
 
@@ -39,6 +40,6 @@ export function run(obj: Obj, ...args: unknown[]) {
 	obj.Blackboard.curNearbyEnemies = unitModelMgr
 		.GetNearbyModels(obj.Unit, obj.CheckEnemyRadius)
 		.filter((model) => model.GetAttribute("UnitType") === "HunterUnit");
-	$print("checkNearbyEnemyCount");
+	// $print("checkNearbyEnemyCount");
 	return SUCCESS;
 }

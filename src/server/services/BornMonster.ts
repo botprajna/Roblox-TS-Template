@@ -107,13 +107,13 @@ export class BornMonster implements OnStart {
 
 					const frame = new Instance("Frame");
 					frame.Size = new UDim2(1, 0, 1, 0);
-					frame.BackgroundColor3 = Color3.fromRGB(255, 170, 0);
+					frame.BackgroundColor3 = Color3.fromRGB(255, 115, 0);
 					frame.BackgroundTransparency = 0.3;
 					frame.Parent = dropBill;
 
 					const stroke = new Instance("UIStroke");
 					stroke.Thickness = 4;
-					stroke.Color = Color3.fromRGB(255, 255, 0);
+					stroke.Color = Color3.fromRGB(0, 255, 64);
 					stroke.Parent = frame;
 
 					this.spawnMonster(monsterId);
@@ -121,13 +121,13 @@ export class BornMonster implements OnStart {
 				}
 			});
 
-			// 测试：3秒后让怪物死亡
-			if (monsterId === 1) {
-				task.delay(3, () => {
-					humanoid.Health = 0;
-					print("该怪物已死亡");
-				});
-			}
+			// // 测试：3秒后让怪物死亡
+			// if (monsterId === 1) {
+			// 	task.delay(3, () => {
+			// 		humanoid.Health = 0;
+			// 		print("该怪物已死亡");
+			// 	});
+			// }
 		}
 
 		// 打印当前生成的怪物属性

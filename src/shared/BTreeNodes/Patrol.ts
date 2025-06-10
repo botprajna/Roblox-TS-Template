@@ -70,10 +70,10 @@ export function run(obj: Obj, ...args: unknown[]) {
 	// if (data.state === "Moving" && data.path.Status !== "Active") {
 	// 	data.path.Run(data.target);
 	// }
+	// print("巡逻3");
 
 	if (data.state === "Moving") return RUNNING;
 	if (data.state === "Reached") return SUCCESS;
 	if (data.state === "Error") return FAIL;
-
 	return RUNNING;
 }

@@ -87,6 +87,8 @@ export class BornUnit implements OnStart {
 		// 存储猎人实例和属性
 		this.hunterManager.AddHunter(hunterUnit, hunterAttributes);
 		this.unitModel.SetModel(hunterUnit, instance);
+		//
+		instance.SetAttribute("UnitType", "HunterUnit");
 
 		// 监听Health属性
 		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;

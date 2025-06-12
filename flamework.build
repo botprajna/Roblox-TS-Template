@@ -45,7 +45,10 @@
 		"roblox-ts-template:out/server/services/UnitAnimation@UnitAnimation": "server/services/UnitAnimation@UnitAnimation",
 		"roblox-ts-template:out/server/services/SceneService@Create": "server/services/SceneService@Create",
 		"roblox-ts-template:out/server/services/SceneService@$p:error": "server/services/SceneService@$p:error",
-		"roblox-ts-template:out/server/services/SceneService@Scen": "server/services/SceneService@Scen"
+		"roblox-ts-template:out/server/services/SceneService@Scen": "server/services/SceneService@Scen",
+		"roblox-ts-template:out/shared/UnitTypes@UnitAttribute": "shared/UnitTypes@UnitAttribute",
+		"roblox-ts-template:out/server/services/attack@UnitSkillMgr": "server/services/attack@UnitSkillMgr",
+		"roblox-ts-template:out/server/services/attack@AttackSkill": "server/services/attack@AttackSkill"
 	},
 	"metadata": {}
 }

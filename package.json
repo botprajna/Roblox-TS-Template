@@ -31,6 +31,7 @@
     "@rbxts/behavior-tree-5": "^1.0.0",
     "@rbxts/log": "^0.6.3",
     "@rbxts/profile-store": "^1.0.3",
+    "@rbxts/raycast-hitbox": "^4.0.1-ts.1",
     "@rbxts/react": "^17.2.1",
     "@rbxts/react-roblox": "^17.2.1",
     "@rbxts/rust-classes": "^0.13.0",

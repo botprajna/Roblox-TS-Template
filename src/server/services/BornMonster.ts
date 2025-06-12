@@ -1,10 +1,11 @@
 import { Service, OnStart } from "@flamework/core";
 import { UnitModel } from "./UnitModel";
 import { HttpService, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { MonsterConfig, MonsterUnit, Unit, UnitAttribute } from "shared/UnitTypes";
+import { MonsterConfig, Unit, UnitAttribute } from "shared/UnitTypes";
 import { t } from "@rbxts/t";
 import { SceneService } from "./SceneService";
 import { UnitAiMgr } from "./MonsterAi";
+import { UnitAnimation } from "./UnitAnimation";
 
 @Service({})
 export class BornMonster implements OnStart {
@@ -15,6 +16,7 @@ export class BornMonster implements OnStart {
 		private sceneService: SceneService,
 		private unitModel: UnitModel,
 		private unitAiMgr: UnitAiMgr,
+		private unitAnimation: UnitAnimation,
 	) {}
 
 	onStart() {
@@ -54,6 +56,31 @@ export class BornMonster implements OnStart {
 		}
 
 		const instance = model.Clone();
+		const stick = new Instance("Part");
+		stick.Name = "Stick";
+
+		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
+		if (humanoid) {
+			// 确保有Animator
+			if (!instance.FindFirstChildOfClass("Animator")) {
+				const animator = new Instance("Animator");
+				animator.Parent = humanoid;
+			}
+		}
+
+		stick.Size = new Vector3(5, 0.5, 0.5);
+		stick.CanCollide = false;
+		stick.Color = Color3.fromRGB(255, 0, 0);
+		stick.Anchored = false;
+
+		const leftHand = instance.FindFirstChild("LeftHand") as BasePart;
+		stick.CFrame = leftHand.CFrame;
+		stick.Parent = instance;
+
+		const weld = new Instance("WeldConstraint") as WeldConstraint;
+		weld.Part0 = leftHand;
+		weld.Part1 = stick;
+		weld.Parent = stick;
 		// 克隆模型后，设置 PrimaryPart
 		const rootPart = instance.FindFirstChild("HumanoidRootPart") as BasePart | undefined;
 		if (rootPart) {
@@ -79,16 +106,18 @@ export class BornMonster implements OnStart {
 
 		this.Monsters.set(monsterUnit, monsterAttributes);
 		this.unitModel.SetModel(monsterUnit, instance);
+
 		// 调用怪物	AI
 		this.unitAiMgr.CreateAI(monsterUnit);
 
-		const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
+		// const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
 		if (t.none(humanoid)) {
 			warn(`怪物 ${config.Name} 未找到 Humanoid`);
 		} else {
 			// 监听生命值变化
 			humanoid.HealthChanged.Connect(() => {
 				if (humanoid.Health <= 0) {
+					print(`怪物的健康值 ${humanoid.Health}`);
 					// 怪物死亡，重新生成
 					instance.Destroy();
 
@@ -120,14 +149,6 @@ export class BornMonster implements OnStart {
 					print(`重新生成怪物 ${monsterAttributes.Name}`);
 				}
 			});
-
-			// // 测试：3秒后让怪物死亡
-			// if (monsterId === 1) {
-			// 	task.delay(3, () => {
-			// 		humanoid.Health = 0;
-			// 		print("该怪物已死亡");
-			// 	});
-			// }
 		}
 
 		// 打印当前生成的怪物属性
@@ -143,6 +164,6 @@ export class BornMonster implements OnStart {
 			生命值: ${monsterAttributes.Health}
 			攻击力: ${monsterAttributes.Attack}  
 		`;
-		print(info);
+		// print(info);
 	}
 }

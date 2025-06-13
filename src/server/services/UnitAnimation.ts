@@ -16,7 +16,7 @@ export class UnitAnimation implements OnStart {
 	constructor(private unitModel: UnitModel) {}
 
 	onStart() {
-		this.preloadAnimations();
+		this.getAnimations();
 	}
 
 	PlayAnimation(unit: Unit, animationType: AnimationType): AnimationTrack | undefined {
@@ -38,7 +38,7 @@ export class UnitAnimation implements OnStart {
 		return animTrack;
 	}
 
-	private preloadAnimations() {
+	private getAnimations() {
 		const animationsFolder = ReplicatedStorage.FindFirstChild("Assets")?.FindFirstChild("Animation", true);
 		if (!animationsFolder) {
 			Log.Warn("Animations folder not found");

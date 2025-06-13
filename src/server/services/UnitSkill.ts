@@ -22,22 +22,19 @@ export class UnitSkill implements OnStart {
 
 	CastAttack(unit: Unit) {
 		const model = this.unitModel.GetModel(unit);
-		if (!model || !model.PrimaryPart) return;
-
-		// 播放攻击动画
-		const attackAnim = math.random() > 0.5 ? "RightSlash" : "LeftSlash";
-		// this.unitAnimation.PlayAnimation(unit, );
+		if (t.none(model) || t.none(model.PrimaryPart)) return;
 
 		// 初始化碰撞盒
 		this.InitHitBox(unit);
+		this.unitAnimation.PlayAnimation(unit, "OnAttack");
 	}
 
 	InitHitBox(unit: Unit) {
 		const model = this.unitModel.GetModel(unit);
-		if (!model || !model.PrimaryPart) return;
+		if (t.none(model) || t.none(model.PrimaryPart)) return;
 
 		const stick = model.FindFirstChild("Stick", true);
-		if (!stick || !stick.IsA("BasePart")) {
+		if (t.none(stick) || t.none(stick.IsA("BasePart"))) {
 			warn("AttackSkill:InitHitBox() Stick not found or not a BasePart");
 			return;
 		}

@@ -14,7 +14,7 @@ export class UnitSkill implements OnStart {
 	constructor(
 		private unitModel: UnitModel,
 		private hunterManager: HunterManager,
-		private bornUnit: BornUnit,
+		// private bornUnit: BornUnit,
 		private unitAnimation: UnitAnimation,
 	) {}
 
@@ -25,7 +25,7 @@ export class UnitSkill implements OnStart {
 		if (t.none(model) || t.none(model.PrimaryPart)) return;
 
 		// 初始化碰撞盒
-		this.InitHitBox(unit);
+		// this.InitHitBox(unit);
 		this.unitAnimation.PlayAnimation(unit, "OnAttack");
 	}
 
@@ -105,7 +105,7 @@ export class UnitSkill implements OnStart {
 		if (currentHealth <= 0) {
 			const humanoid = targetModel.FindFirstChild("Humanoid") as Humanoid;
 			if (humanoid) humanoid.Health = 0;
-			this.bornUnit.SpawnHunter(hunter.HunterId);
+			// this.bornUnit.SpawnHunter(hunter.HunterId);
 		}
 	}
 

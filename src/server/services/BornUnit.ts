@@ -7,6 +7,7 @@ import { UpgradeHunter } from "./UpgradeHunter";
 import { GetReward } from "./GetReward";
 import { HunterManager } from "./HunterManager";
 import { Attributes } from "@rbxts/react";
+import { UnitAiMgr } from "./HunterAi";
 
 @Service({})
 export class BornUnit implements OnStart {
@@ -18,6 +19,7 @@ export class BornUnit implements OnStart {
 		private upgradeHunter: UpgradeHunter,
 		private getReward: GetReward,
 		private hunterManager: HunterManager,
+		private unitAiMgr: UnitAiMgr,
 	) {}
 
 	onStart() {
@@ -66,6 +68,7 @@ export class BornUnit implements OnStart {
 		this.unitModel.SetModel(hunterUnit, instance);
 		//
 		instance.SetAttribute("UnitType", "HunterUnit");
+		this.unitAiMgr.CreateAI(hunterUnit);
 
 		// 打印生成信息
 		this.printHunterInfo(hunterAttributes);

@@ -3,7 +3,7 @@ import Path from "@rbxts/simplepath";
 import { t } from "@rbxts/t";
 import { $assert } from "rbxts-transform-debug";
 import { MonsterBTreeBlackboard, MonsterBTreeObj } from "server/services/MonsterAi";
-import { MonsterUnit } from "shared/UnitTypes";
+import { MonsterUnit, HunterUnit } from "shared/UnitTypes";
 
 type Blackboard = MonsterBTreeBlackboard;
 // type Obj = { Blackboard: Blackboard; Level: number } & MonsterBTreeObj;

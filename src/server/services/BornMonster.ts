@@ -109,6 +109,7 @@ export class BornMonster implements OnStart {
 
 		// 调用怪物	AI
 		this.unitAiMgr.CreateAI(monsterUnit);
+		instance.SetAttribute("UnitType", "MonsterUnit");
 
 		// const humanoid = instance.FindFirstChildOfClass("Humanoid") as Humanoid | undefined;
 		if (t.none(humanoid)) {

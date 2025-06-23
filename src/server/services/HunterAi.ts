@@ -12,8 +12,6 @@ import { HunterBTreeObj, MonsterBTreeObj } from "./MonsterAi";
 
 @Service({})
 export class UnitAiMgr implements OnTick {
-	// 存储怪物及其对应的行为树和运行时对象
-	private _trees = new Map<Unit, [MonsterBTreeObj, BehaviorTree3<MonsterBTreeObj>]>();
 	// 存储猎人及其对应的行为树和运行时对象
 	private _hunterTrees = new Map<Unit, [HunterBTreeObj, BehaviorTree3<HunterBTreeObj>]>();
 
@@ -23,9 +21,6 @@ export class UnitAiMgr implements OnTick {
 		private _sceneService: SceneService,
 	) {}
 	onTick(dt: number): void {
-		for (const [unit, [obj, tree]] of this._trees) {
-			tree.run(obj, dt);
-		}
 		for (const [unit, [obj, tree]] of this._hunterTrees) {
 			tree.run(obj, dt);
 		}

@@ -15,7 +15,7 @@ export type MonsterBTreeBlackboard = {
 	patrolPath: Path | undefined; //巡逻路径
 };
 
-export type HunterBlackboard = {
+export type HunterBTreeBlackboard = {
 	nearbyMonsters: Model[];
 	targetMonster?: Model;
 	curnearbyShop: Model[];

@@ -4,6 +4,8 @@ import { t } from "@rbxts/t";
 import Log from "@rbxts/log";
 import { HunterManager } from "./HunterManager";
 import { UnitModel } from "./UnitModel";
+import { HunterUnit } from "shared/UnitTypes";
+import { BornMonster } from "./BornMonster";
 
 @Service({})
 export class SceneService implements OnStart {

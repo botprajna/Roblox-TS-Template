@@ -10,7 +10,7 @@ import { UnitAnimation } from "./UnitAnimation";
 @Service({})
 export class BornMonster implements OnStart {
 	private SPAWN_INTERVAL = 15; // 生成间隔
-	private Monsters = new Map<Unit, UnitAttribute>(); // 存储怪物及其属性
+	public Monsters = new Map<Unit, UnitAttribute>(); // 存储怪物及其属性
 
 	constructor(
 		private sceneService: SceneService,

@@ -2,12 +2,12 @@ import { FAIL, RUNNING, SUCCESS, TREE_OUTCOME } from "@rbxts/behavior-tree-5";
 import Path from "@rbxts/simplepath";
 import { t } from "@rbxts/t";
 import { $assert } from "rbxts-transform-debug";
-import { MonsterBTreeBlackboard, MonsterBTreeObj } from "server/services/MonsterAi";
+import { HunterBTreeBlackboard, HunterBTreeObj } from "server/services/MonsterAi";
 import { MonsterUnit, HunterUnit } from "shared/UnitTypes";
 
-type Blackboard = MonsterBTreeBlackboard;
+type Blackboard = HunterBTreeBlackboard;
 // type Obj = { Blackboard: Blackboard; Level: number } & MonsterBTreeObj;
-type Obj = { Blackboard: Blackboard } & MonsterBTreeObj;
+type Obj = { Blackboard: Blackboard } & HunterBTreeObj;
 type FindPathData = {
 	path: Path;
 	target: Vector3;
@@ -15,12 +15,12 @@ type FindPathData = {
 	Destroy: () => void;
 };
 
-const findPathData = new Map<MonsterUnit, FindPathData>();
+const findPathData = new Map<HunterUnit, FindPathData>();
 export function start(obj: Obj) {
 	const blackboard = obj.Blackboard;
 	if (findPathData.has(obj.Unit) === false) {
 		const model = obj.UnitModelMgr.GetModel(obj.Unit);
-		const target = obj.SceneService.GetNearbyHuntersPosition();
+		const target = obj.hunter.GetNearbyMonsterPosition();
 		const path = new Path(model);
 		const pathConns: RBXScriptConnection[] = [];
 		path.Visualize = true;

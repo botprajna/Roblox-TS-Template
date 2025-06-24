@@ -8,6 +8,7 @@ import { ReplicatedStorage, RunService } from "@rbxts/services";
 import { UnitSkill } from "./UnitSkill";
 import { $assert, $warn } from "rbxts-transform-debug";
 import { t } from "@rbxts/t";
+import { Hunter } from "./Hunter";
 
 // 定义怪物行为树的黑板数据结构 关键的数据共享
 export type MonsterBTreeBlackboard = {
@@ -40,6 +41,7 @@ export type HunterBTreeObj = {
 	UnitModelMgr: UnitModel;
 	UnitSkillMgr: UnitSkill;
 	SceneService: SceneService;
+	hunter: Hunter;
 };
 
 type CanMove = { MoveTo(position: Vector3, timeout?: number): { OnFinished: Signal<() => void> } };

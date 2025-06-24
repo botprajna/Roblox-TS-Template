@@ -17,7 +17,8 @@
 		"roblox-ts-template:out/server/services/Shop@Shop": "server/services/Shop@Shop",
 		"roblox-ts-template:out/shared/network@GlobalEvents": "shared/network@GlobalEvents",
 		"roblox-ts-template:out/shared/network@GlobalFunctions": "shared/network@GlobalFunctions",
-		"roblox-ts-template:out/server/services/HunterAi@UnitAiMgr": "server/services/HunterAi@UnitAiMgr"
+		"roblox-ts-template:out/server/services/HunterAi@UnitAiMgr": "server/services/HunterAi@UnitAiMgr",
+		"roblox-ts-template:out/server/services/Hunter@Hunter": "server/services/Hunter@Hunter"
 	},
 	"metadata": {}
 }

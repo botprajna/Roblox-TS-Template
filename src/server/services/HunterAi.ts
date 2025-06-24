@@ -9,6 +9,7 @@ import { UnitSkill } from "./UnitSkill";
 import { $assert, $warn } from "rbxts-transform-debug";
 import { t } from "@rbxts/t";
 import { HunterBTreeObj, MonsterBTreeObj } from "./MonsterAi";
+import { Hunter } from "./Hunter";
 
 @Service({})
 export class UnitAiMgr implements OnTick {
@@ -19,6 +20,7 @@ export class UnitAiMgr implements OnTick {
 		private _unitModelMgr: UnitModel,
 		private _unitSkillMgr: UnitSkill,
 		private _sceneService: SceneService,
+		private hunter: Hunter,
 	) {}
 	onTick(dt: number): void {
 		for (const [unit, [obj, tree]] of this._hunterTrees) {
@@ -40,6 +42,7 @@ export class UnitAiMgr implements OnTick {
 				UnitModelMgr: this._unitModelMgr,
 				UnitSkillMgr: this._unitSkillMgr,
 				SceneService: this._sceneService,
+				hunter: this.hunter,
 				UnitActionHandler: {
 					Attack() {},
 					MoveTo(position, timeout) {

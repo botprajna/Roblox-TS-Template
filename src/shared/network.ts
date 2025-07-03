@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { Networking } from "@flamework/networking";
+import { Primitive } from "@rbxts/ui-labs";
 
-interface ClientToServerEvents {}
+interface ClientToServerEvents {
+	fire(): void;
+}
 
 interface ServerToClientEvents {}
 

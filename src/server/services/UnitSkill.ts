@@ -26,7 +26,7 @@ export class UnitSkill implements OnStart {
 
 		// 初始化碰撞盒
 		// this.InitHitBox(unit);
-		this.unitAnimation.PlayAnimation(unit, "OnAttack");
+		this.unitAnimation.PlayAnimation(unit, "OnAtt");
 	}
 
 	InitHitBox(unit: Unit) {
@@ -63,7 +63,7 @@ export class UnitSkill implements OnStart {
 		this.applyDamage(targetModel);
 	}
 
-	//94053817037854
+	//117220607496671
 
 	// 应用击退效果
 	private applyKnockback(attacker: Unit, targetModel: Model, hitPosition: Vector3) {

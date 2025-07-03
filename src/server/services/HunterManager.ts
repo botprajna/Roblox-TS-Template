@@ -2,9 +2,7 @@ import { Service, OnStart } from "@flamework/core";
 import { HunterUnit, UnitAttribute } from "shared/UnitTypes";
 
 @Service({})
-export class HunterManager implements OnStart {
-	onStart() {}
-
+export class HunterManager {
 	public Hunters = new Map<HunterUnit, UnitAttribute>();
 	// 存储
 	AddHunter(hunter: HunterUnit, attributes: UnitAttribute) {

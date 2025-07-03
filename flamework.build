@@ -20,7 +20,8 @@
 		"roblox-ts-template:out/server/services/HunterAi@UnitAiMgr": "server/services/HunterAi@UnitAiMgr",
 		"roblox-ts-template:out/server/services/Hunter@Hunter": "server/services/Hunter@Hunter",
 		"roblox-ts-template:out/server/services/UnitSkill@AttackSkill": "server/services/UnitSkill@AttackSkill",
-		"roblox-ts-template:out/server/services/UnitSkill@$p:error": "server/services/UnitSkill@$p:error"
+		"roblox-ts-template:out/server/services/UnitSkill@$p:error": "server/services/UnitSkill@$p:error",
+		"roblox-ts-template:out/client/controllers/BornButton@Bornbutton": "client/controllers/BornButton@Bornbutton"
 	},
 	"metadata": {}
 }

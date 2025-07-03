@@ -6,6 +6,7 @@ import { t } from "@rbxts/t";
 import { SceneService } from "./SceneService";
 import { UnitAiMgr } from "./MonsterAi";
 import { UnitAnimation } from "./UnitAnimation";
+import { Events } from "server/network";
 
 @Service({})
 export class BornMonster implements OnStart {
@@ -20,7 +21,10 @@ export class BornMonster implements OnStart {
 	) {}
 
 	onStart() {
-		this.startSpawning();
+		Events.fire.connect(() => {
+			this.startSpawning();
+			print("开始生成怪物");
+		});
 	}
 
 	private startSpawning() {

@@ -106,7 +106,7 @@ export function run(obj: Obj, ...args: unknown[]) {
 
 	if (t.none(data.target.Parent)) return AttackFail(obj);
 	if (distance >= obj.LostTargetRadius) return AttackFail(obj);
-	print("第一步: 攻击开始");
+
 	//攻击
 	if (distance <= obj.AttackRadius) obj.UnitSkillMgr.CastAttack(obj.Unit);
 
